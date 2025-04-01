@@ -3,6 +3,7 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from collections import Counter
 from .models import Property, Unit, Tenant, Lease, Application, Payment
+from django.db.models import Prefetch
 import json
 
 def dashboard(request):
@@ -83,9 +84,12 @@ def dashboard(request):
         {'message': entry['message'], 'timestamp': entry['timestamp']} for entry in recent_activity
     ]
 
-    # All units + add .status field to each
-    all_units = Unit.objects.select_related('property').all()
-    pending_unit_ids = set(pending_units)  # Reuse the earlier query
+    # All units with related property and any current/future leases (to get tenant name)
+    all_units = Unit.objects.select_related('property').prefetch_related(
+        Prefetch('lease_set', queryset=Lease.objects.filter(end_date__gte=today).select_related('tenant'))
+    )
+
+    pending_unit_ids = set(pending_units)
 
     for unit in all_units:
         if unit.is_occupied:
@@ -94,6 +98,10 @@ def dashboard(request):
             unit.status = "Pending"
         else:
             unit.status = "Vacant"
+
+        # Set tenant_name from the first valid lease if exists, else "None"
+        active_lease = next(iter(unit.lease_set.all()), None)
+        unit.tenant_name = active_lease.tenant.name if active_lease and active_lease.tenant else "None"
 
     context = {
         'outstanding_balances': outstanding_leases,
@@ -108,6 +116,7 @@ def dashboard(request):
         'tasks': tasks,
         'recent_activity': recent_activity_messages,
         'all_units': all_units,
+        'today': today,
     }
 
     return render(request, 'rentals/dashboard.html', context)

@@ -244,8 +244,8 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th onclick="sortExpiringLeasesTable(0)" class="pl-2" style="width: 35%;">Name</th>
-                                    <th onclick="sortExpiringLeasesTable(1)" style="width: 27%;">Unit</th>
-                                    <th onclick="sortExpiringLeasesTable(2)" class="pr-2" style="width: 10%;">End Date</th>
+                                    <th onclick="sortExpiringLeasesTable(1)" style="width: 40%;">Unit</th>
+                                    <th onclick="sortExpiringLeasesTable(2)" class="pr-2" style="width: 20%;">End Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -315,8 +315,9 @@
                     <th id="unitHeader0">Property</th>
                     <th id="unitHeader1">Unit</th>
                     <th id="unitHeader2">Address</th>
-                    <th id="unitHeader3" class="text-right">Rent</th>
-                    <th id="unitHeader4">Status</th>
+                    <th id="unitHeader3">Tenant</th>
+                    <th id="unitHeader4" class="text-right">Rent</th>
+                    <th id="unitHeader5">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -325,6 +326,7 @@
                     <td>{{ unit.property.name }}</td>
                     <td>#{{ unit.number }}</td>
                     <td>{{ unit.property.address }}</td>
+                    <td>{{ unit.tenant_name }}</td>
                     <td class="text-right">${{ unit.monthly_rent|floatformat:0|intcomma }}</td>
                     <td>{{ unit.status }}</td>
                 </tr>
@@ -383,7 +385,8 @@
             document.getElementById("unitHeader1"),
             document.getElementById("unitHeader2"),
             document.getElementById("unitHeader3"),
-            document.getElementById("unitHeader4")
+            document.getElementById("unitHeader4"),
+            document.getElementById("unitHeader5")
         ];
 
         // Original header text for each column
