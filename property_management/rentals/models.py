@@ -9,7 +9,6 @@ class Property(models.Model):
     def __str__(self):
         return self.name
 
-
 class Unit(models.Model):
     name = models.CharField(max_length=100)
     number = models.CharField(max_length=100)
@@ -19,7 +18,6 @@ class Unit(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.property.name if self.property else 'No Property'})"
-
 
 class Tenant(models.Model):
     name = models.CharField(max_length=100)

@@ -16,17 +16,11 @@ def dashboard(request):
     outstanding_leases = list(leases)
     total_outstanding = sum(lease.outstanding_balance for lease in leases)
 
-    # Rental listings breakdown
+    # Occupied/Vacant/Pending Units
     occupied_count = Unit.objects.filter(is_occupied=True).count()
-
-    # Vacant units
     vacant_units = Unit.objects.filter(is_occupied=False)
-
-    # Vacant units with pending apps
     pending_units = Application.objects.filter(status='pending').values_list('unit_id', flat=True)
     vacant_with_apps_count = vacant_units.filter(id__in=pending_units).count()
-
-    # Truly vacant (no pending apps)
     vacant_no_apps_count = vacant_units.exclude(id__in=pending_units).count()
 
     # Rental applications
@@ -38,9 +32,7 @@ def dashboard(request):
     expiring_leases = Lease.objects.filter(
         end_date__lte=next_30_days, end_date__gte=today
     ).select_related('tenant', 'unit__property')
-
-    # Group expiring leases by date for chart
-    expiring_distribution = Counter(lease.end_date.strftime("%Y-%m-%d") for lease in expiring_leases)
+    expiring_distribution = Counter(lease.end_date.strftime("%Y-%m-%d") for lease in expiring_leases) # Group by date
     expiring_distribution = dict(sorted(expiring_distribution.items()))
 
     # Tasks
@@ -49,10 +41,10 @@ def dashboard(request):
         {"title": "Paint Vacant Unit #101", "due_date": "2025-04-10", "status": "Not Started"},
     ]
 
-    # Recent activity — strictly in the past 2 days
+    # Recent activity (past two days)
     recent_activity = []
 
-    # Payments before now
+    # Recent Payments
     recent_payments = Payment.objects.filter(date__gte=two_days_ago.date(), date__lt=today).select_related('lease__tenant')
     for payment in recent_payments:
         payment_datetime = timezone.make_aware(datetime.combine(payment.date, datetime.min.time()))
@@ -61,7 +53,7 @@ def dashboard(request):
             'message': f"{payment.lease.tenant.name} paid ${int(payment.amount):,} towards rent"
         })
 
-    # Applications submitted before now
+    # Recent Applications
     recent_apps = Application.objects.filter(submitted_on__gte=two_days_ago, submitted_on__lt=now).select_related('unit__property')
     for app in recent_apps:
         recent_activity.append({
@@ -69,7 +61,7 @@ def dashboard(request):
             'message': f"Application from {app.applicant_name} for {app.unit.property.name} #{app.unit.number}"
         })
 
-    # Lease expirations that already occurred (yesterday or day before)
+    # Recent Lease expirations
     recent_expiring = Lease.objects.filter(end_date__lt=today, end_date__gte=today - timedelta(days=2)).select_related('tenant', 'unit__property')
     for lease in recent_expiring:
         lease_datetime = timezone.make_aware(datetime.combine(lease.end_date, datetime.min.time()))
@@ -78,19 +70,19 @@ def dashboard(request):
             'message': f"Lease for {lease.unit.property.name} #{lease.unit.number} (Tenant: {lease.tenant.name}) expired on {lease.end_date.strftime('%b %d')}."
         })
 
-    # Sort and get the most recent 10 past events
+    # Get most recent 10 events
     recent_activity = sorted(recent_activity, key=lambda x: x['timestamp'], reverse=True)[:10]
     recent_activity_messages = [
         {'message': entry['message'], 'timestamp': entry['timestamp']} for entry in recent_activity
     ]
 
-    # All units with related property and any current/future leases (to get tenant name)
+    # All units
     all_units = Unit.objects.select_related('property').prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.filter(end_date__gte=today).select_related('tenant'))
     )
 
+    # Label Occupied/Pending/Vacant in all units set
     pending_unit_ids = set(pending_units)
-
     for unit in all_units:
         if unit.is_occupied:
             unit.status = "Occupied"
@@ -98,11 +90,11 @@ def dashboard(request):
             unit.status = "Pending"
         else:
             unit.status = "Vacant"
-
-        # Set tenant_name from the first valid lease if exists, else "None"
+        # Tenant for each unit
         active_lease = next(iter(unit.lease_set.all()), None)
         unit.tenant_name = active_lease.tenant.name if active_lease and active_lease.tenant else "None"
 
+    # Build context
     context = {
         'outstanding_balances': outstanding_leases,
         'total_outstanding': total_outstanding,

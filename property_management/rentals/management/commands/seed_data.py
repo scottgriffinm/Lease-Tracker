@@ -142,4 +142,4 @@ class Command(BaseCommand):
                 submitted_on=fake.date_time_between(start_date='-30d', end_date='now')
             )
 
-        self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully with realistic occupancy and precomputed balances!"))
+        self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully."))
