@@ -37,10 +37,9 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header">
-          <strong>Outstanding Balances - Rentals</strong>
+          <strong>Outstanding Balances (Total: ${{ total_outstanding }})</strong>
         </div>
         <div class="card-body fixed-height">
-          <h5>Total: ${{ total_outstanding }}</h5>
           <ul class="list-group">
             {% for lease in outstanding_balances %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
