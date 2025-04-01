@@ -69,7 +69,7 @@
 <body>
 
     <div class="container-fluid">
-        <h3 class="mb-4">Good Afternoon, User.</h3>
+        <h3 class="mb-4" id="greeting">Hello, User.</h3>
 
         <!-- Row 1 -->
         <div class="row">
@@ -122,9 +122,10 @@
                         <div class="chart-container">
                             <canvas id="rentalChart"></canvas>
                         </div>
-                        <p class="mt-2">
-                            Vacant Units: {{ vacant_count|intcomma }} |
-                            Occupied Units: {{ occupied_count|intcomma }}
+                        <p class="mt-4">
+                            Vacant: {{ vacant_no_apps_count|intcomma }} |
+                            Pending: {{ vacant_with_apps_count|intcomma }} |
+                            Occupied: {{ occupied_count|intcomma }}
                         </p>
                     </div>
                 </div>
@@ -228,7 +229,7 @@
                         <ul class="list-group">
                             {% for task in tasks %}
                             <li class="list-group-item">
-                                <strong>{{ task.title }}</strong><br>
+                                <span>{{ task.title }}</span><br>
                                 <small>Due: {{ task.due_date }} | Status: {{ task.status }}</small>
                             </li>
                             {% endfor %}
@@ -262,6 +263,28 @@
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Custom Greeting -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = "Hello";
+    
+            if (hour < 12) {
+                greeting = "Good Morning";
+            } else if (hour < 17) {
+                greeting = "Good Afternoon";
+            } else {
+                greeting = "Good Evening";
+            }
+    
+            const greetingElement = document.getElementById('greeting');
+            if (greetingElement) {
+                greetingElement.textContent = `${greeting}, User.`;
+            }
+        });
+    </script>
 
     <!-- Table Sorting: Applications (also selector button handling) -->
     <script>
@@ -445,12 +468,12 @@
         var rentalChart = new Chart(ctx1, {
             type: 'doughnut',
             data: {
-                labels: ['Vacant', 'Occupied'],
-                datasets: [{
-                    data: [{{ vacant_count }}, {{ occupied_count }}],
-            backgroundColor: ['#FF6384', '#36A2EB']
-        }]
-            },
+    labels: ['Vacant', 'Pending', 'Occupied'],
+    datasets: [{
+        data: [{{ vacant_no_apps_count }}, {{ vacant_with_apps_count }}, {{ occupied_count }}],
+        backgroundColor: ['#FF6384', '#FFCE56', '#36A2EB']
+    }]
+},
         options: {
             maintainAspectRatio: false,
                 responsive: true

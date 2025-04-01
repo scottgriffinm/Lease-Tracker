@@ -127,13 +127,18 @@ class Command(BaseCommand):
 
             lease.save()
 
-        # Create rental applications (random units including vacant)
-        for _ in range(30):
-            unit = random.choice(Unit.objects.all())
+        # Create rental applications
+        vacant_units = list(Unit.objects.filter(is_occupied=False))
+
+        for _ in range(300):
+            if not vacant_units:
+                break  # In case all units are occupied
+
+            unit = random.choice(vacant_units)
             Application.objects.create(
                 applicant_name=fake.name(),
                 unit=unit,
-                status=random.choice(['pending', 'approved', 'rejected']),
+                status=random.choice(['approved', 'rejected'] + ['pending'] * 10),
                 submitted_on=fake.date_time_between(start_date='-30d', end_date='now')
             )
 

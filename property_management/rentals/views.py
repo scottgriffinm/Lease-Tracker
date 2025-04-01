@@ -15,9 +15,18 @@ def dashboard(request):
     outstanding_leases = list(leases)
     total_outstanding = sum(lease.outstanding_balance for lease in leases)
 
-    # Rental listings: vacant vs occupied
+    # Rental listings breakdown
     occupied_count = Unit.objects.filter(is_occupied=True).count()
-    vacant_count = Unit.objects.filter(is_occupied=False).count()
+
+    # Vacant units
+    vacant_units = Unit.objects.filter(is_occupied=False)
+
+    # Vacant units with pending apps
+    pending_units = Application.objects.filter(status='pending').values_list('unit_id', flat=True)
+    vacant_with_apps_count = vacant_units.filter(id__in=pending_units).count()
+
+    # Truly vacant (no pending apps)
+    vacant_no_apps_count = vacant_units.exclude(id__in=pending_units).count()
 
     # Rental applications
     rental_applications = Application.objects.select_related('unit__property').order_by('-submitted_on')
@@ -70,13 +79,15 @@ def dashboard(request):
     # Sort and get the most recent 10 past events
     recent_activity = sorted(recent_activity, key=lambda x: x['timestamp'], reverse=True)[:10]
     recent_activity_messages = [
-    {'message': entry['message'], 'timestamp': entry['timestamp']} for entry in recent_activity
+        {'message': entry['message'], 'timestamp': entry['timestamp']} for entry in recent_activity
     ]
+
     context = {
         'outstanding_balances': outstanding_leases,
         'total_outstanding': total_outstanding,
         'occupied_count': occupied_count,
-        'vacant_count': vacant_count,
+        'vacant_with_apps_count': vacant_with_apps_count,
+        'vacant_no_apps_count': vacant_no_apps_count,
         'rental_applications': rental_applications,
         'expiring_leases': expiring_leases,
         'expiring_leases_distribution': json.dumps(expiring_distribution),
