@@ -30,6 +30,7 @@ def dashboard(request):
 
     # Rental applications
     rental_applications = Application.objects.select_related('unit__property').order_by('-submitted_on')
+    pending_app_count = Application.objects.filter(status='pending').count()
 
     # Expiring leases (next 30 days)
     next_30_days = today + timedelta(days=30)
@@ -89,6 +90,7 @@ def dashboard(request):
         'vacant_with_apps_count': vacant_with_apps_count,
         'vacant_no_apps_count': vacant_no_apps_count,
         'rental_applications': rental_applications,
+        'pending_app_count': pending_app_count,
         'expiring_leases': expiring_leases,
         'expiring_leases_distribution': json.dumps(expiring_distribution),
         'tasks': tasks,
