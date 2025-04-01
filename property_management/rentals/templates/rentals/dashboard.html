@@ -9,117 +9,119 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <style>
-        body {
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
 
-        th {
-            /* Disable text selecting */
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            cursor: pointer;
-        }
-        .card {
-            margin-bottom: 20px;
-        }
-        .chart-container {
-            position: relative;
-            height: 200px;
-        }
-        .fixed-height {
-            max-height: 300px;
-            min-height: 300px;
-            overflow-y: auto;
-        }
-        .fixed-height-outstanding-balances-table-body {
-            max-height: 267px;
-            min-height: 267px;
-            overflow-y: auto;
-        }
-        .fixed-height-expiring-leases-table-body {
-            max-height: 240px;
-            min-height: 240px;
-            overflow-y: auto;
-        }
-        .fixed-height-applications-table-body {
-            max-height: 214px;
-            min-height: 214px;
-            overflow-y: auto;
-        }
-        .scrollable-table-wrapper {
-            max-height: 267px;
-            overflow-y: auto;
-        }
-        .scrollable-table-wrapper thead th {
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            background-color: #f8f9fa; /* same as your body background */
-        }
-        .custom-stripe {
-            background-color: rgba(0, 0, 0, 0.05) !important;
-        }
-        /* Custom styling for DataTables controls */
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        <style>
+            body {
+                padding: 20px;
+                background-color: #f8f9fa;
+            }
 
-        .dataTables_wrapper .dataTables_filter {
-            float: left !important;
-            text-align: left !important;
-            margin-left: 1rem;
-        }
+            th {
+                /* Disable text selecting */
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                cursor: pointer;
+            }
+            .card {
+                margin-bottom: 20px;
+            }
+            .chart-container {
+                position: relative;
+                height: 200px;
+            }
+            .fixed-height {
+                max-height: 300px;
+                min-height: 300px;
+                overflow-y: auto;
+            }
+            .fixed-height-outstanding-balances-table-body {
+                max-height: 267px;
+                min-height: 267px;
+                overflow-y: auto;
+            }
+            .fixed-height-expiring-leases-table-body {
+                max-height: 240px;
+                min-height: 240px;
+                overflow-y: auto;
+            }
+            .fixed-height-applications-table-body {
+                max-height: 214px;
+                min-height: 214px;
+                overflow-y: auto;
+            }
+            .scrollable-table-wrapper {
+                max-height: 267px;
+                overflow-y: auto;
+            }
+            .scrollable-table-wrapper thead th {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                background-color: #f8f9fa;
+            }
+            .custom-stripe {
+                background-color: rgba(0, 0, 0, 0.05) !important;
+            }
+            /* DataTables controls (for all units table) */
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                margin-top: 1rem;
+                margin-bottom: 0.5rem;
+            }
 
-        .dataTables_wrapper .dataTables_length {
-            float: left !important;
-            margin-left: 1rem;
-        }
+            .dataTables_wrapper .dataTables_filter {
+                float: left !important;
+                text-align: left !important;
+                margin-left: 1rem;
+            }
 
-        .dataTables_wrapper .dataTables_info {
-            padding-top: 1rem;
-        }
-        .dataTables_wrapper .dataTables_info {
-            padding-top: 1.5rem;
-            margin-left: 1rem; 
-        }
-        .dataTables_wrapper .dataTables_paginate {
-            padding-top: 1rem;
-            margin-bottom: 1rem; 
-        }
-        .dataTables_wrapper .dataTables_paginate {
-            padding-top: 1rem;
-        }
-        /* Kill DataTables default sorting arrows */
-        table.dataTable thead th.sorting::before,
-        table.dataTable thead th.sorting::after,
-        table.dataTable thead th.sorting_asc::before,
-        table.dataTable thead th.sorting_asc::after,
-        table.dataTable thead th.sorting_desc::before,
-        table.dataTable thead th.sorting_desc::after {
-            display: none !important;
-            content: none !important;
-            background: none !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-    </style>
-</head>
+            .dataTables_wrapper .dataTables_length {
+                float: left !important;
+                margin-left: 1rem;
+            }
+
+            .dataTables_wrapper .dataTables_info {
+                padding-top: 1rem;
+            }
+            .dataTables_wrapper .dataTables_info {
+                padding-top: 1.5rem;
+                margin-left: 1rem; 
+            }
+            .dataTables_wrapper .dataTables_paginate {
+                padding-top: 1rem;
+                margin-bottom: 1rem; 
+            }
+            .dataTables_wrapper .dataTables_paginate {
+                padding-top: 1rem;
+            }
+            /* Kill DataTables default sorting arrows (for all units table) */
+            table.dataTable thead th.sorting::before,
+            table.dataTable thead th.sorting::after,
+            table.dataTable thead th.sorting_asc::before,
+            table.dataTable thead th.sorting_asc::after,
+            table.dataTable thead th.sorting_desc::before,
+            table.dataTable thead th.sorting_desc::after {
+                display: none !important;
+                content: none !important;
+                background: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        </style>
+    </head>
 
 <body>
 
     <div class="container-fluid">
         <h3 class="mb-4" id="greeting">Hello, User.</h3>
-
+        
         <!-- Row 1 -->
         <div class="row">
+
            <!-- Outstanding Balances -->
             <div class="col-md-4">
                 <div class="card">
@@ -127,20 +129,18 @@
                         <strong>Outstanding Balances</strong>
                         <span>Total: ${{ total_outstanding|floatformat:0|intcomma }}</span>
                     </div>
+                     <!-- Table -->
                     <div class="card-body p-0">
-                        <!-- Table Header -->
                         <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTableHead">
                             <thead class="thead-light">
                                 <tr>
-                                    <th onclick="sortTable(0)" class="pl-2" style="width: 35%;">Name</th>
-                                    <th onclick="sortTable(1)" style="width: 30%;">Unit</th>
-                                    <th onclick="sortTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days</th>
-                                    <th onclick="sortTable(3)" class="pr-2" style="width: 15%; text-align: right;">Amount</th>
+                                    <th onclick="sortOutstandingBalancesTable(0)" class="pl-2" style="width: 35%;">Name</th>
+                                    <th onclick="sortOutstandingBalancesTable(1)" style="width: 30%;">Unit</th>
+                                    <th onclick="sortOutstandingBalancesTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days</th>
+                                    <th onclick="sortOutstandingBalancesTable(3)" class="pr-2" style="width: 15%; text-align: right;">Amount</th>
                                 </tr>
                             </thead>
                         </table>
-
-                        <!-- Scrollable Table Body -->
                         <div class="fixed-height-outstanding-balances-table-body" style="overflow-y: auto; overflow-x: hidden;">
                             <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTable">
                                 <tbody>
@@ -159,14 +159,13 @@
                 </div>
             </div>
 
-            <!-- Listings (Vacant vs Occupied) -->
+            <!-- Listings (Vacant vs Occupied Chart) -->
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                          <strong>Listings</strong>
                         <span>Total: {{ all_units|length|intcomma }}</span>
                     </div>
-                   
                     <div class="card-body fixed-height text-center">
                         <div class="chart-container">
                             <canvas id="rentalChart"></canvas>
@@ -180,67 +179,62 @@
                 </div>
             </div>
 
-        <!-- Applications -->
-        <div class="col-md-4">
-            <div class="card">
-            <div class="card-header">
-                <strong>Applications</strong>
-            </div>
-            <div class="card-body p-0">
-                
-                <!-- Filter Buttons -->
-                <div class="btn-group d-flex m-2" role="group">
-                <button class="btn btn-light w-100" id="btn-pending" onclick="filterApplications('pending')">To Review ({{ pending_app_count }})</button>
-                <button class="btn btn-light w-100" id="btn-approved" onclick="filterApplications('approved')">Accepted</button>
-                <button class="btn btn-light w-100" id="btn-rejected" onclick="filterApplications('rejected')">Rejected</button>
+            <!-- Applications -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Applications</strong>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Filter Buttons -->
+                        <div class="btn-group d-flex m-2" role="group">
+                        <button class="btn btn-light w-100" id="btn-pending" onclick="filterApplications('pending')">To Review ({{ pending_app_count }})</button>
+                        <button class="btn btn-light w-100" id="btn-approved" onclick="filterApplications('approved')">Accepted</button>
+                        <button class="btn btn-light w-100" id="btn-rejected" onclick="filterApplications('rejected')">Rejected</button>
+                        </div>
+                        <!-- Table -->
+                        <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTable">
+                        <thead class="thead-light" style="position: sticky; top: 0; z-index: 2; background-color: #f8f9fa;">
+                            <tr>
+                            <th style="width: 35%; padding-left: 0.75rem;" onclick="sortApplicationsTable(0)" id="appHeader0">Name</th>
+                            <th style="width: 30%;" onclick="sortApplicationsTable(1)" id="appHeader1">Unit</th>
+                            <th style="width: 25%; padding-right: 1rem;" onclick="sortApplicationsTable(2)" id="appHeader2">Date Submitted</th>
+                            </tr>
+                        </thead>
+                        </table>
+                        <div class="fixed-height-applications-table-body" style="max-height: 150px; overflow-y: auto;">
+                            <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTableBody">
+                                <tbody>
+                                {% for app in rental_applications %}
+                                <tr data-status="{{ app.status }}">
+                                    <td style="padding-left: 0.75rem;">{{ app.applicant_name }}</td>
+                                    <td>{{ app.unit.property.name }} #{{ app.unit.number }}</td>
+                                    <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">{{ app.submitted_on|date:"M j, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-        
-                <!-- Table and Scrollable Body -->
-                <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTable">
-                <thead class="thead-light" style="position: sticky; top: 0; z-index: 2; background-color: #f8f9fa;">
-                    <tr>
-                    <th style="width: 35%; padding-left: 0.75rem;" onclick="sortApplicationsTable(0)" id="appHeader0">Name</th>
-                    <th style="width: 30%;" onclick="sortApplicationsTable(1)" id="appHeader1">Unit</th>
-                    <th style="width: 25%; padding-right: 1rem;" onclick="sortApplicationsTable(2)" id="appHeader2">Date Submitted</th>
-                    </tr>
-                </thead>
-                </table>
-        
-                <!-- Scrollable Table Body Outside of Table -->
-                <div class="fixed-height-applications-table-body" style="max-height: 150px; overflow-y: auto;">
-                    <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTableBody">
-                        <tbody>
-                        {% for app in rental_applications %}
-                        <tr data-status="{{ app.status }}">
-                            <td style="padding-left: 0.75rem;">{{ app.applicant_name }}</td>
-                            <td>{{ app.unit.property.name }} #{{ app.unit.number }}</td>
-                            <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">{{ app.submitted_on|date:"M j, Y" }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-        
-            </div>
             </div>
         </div>
-    </div>
 
         <!-- Row 2 -->
         <div class="row">
             <!-- Expiring Leases -->
             <div class="col-md-4">
                 <div class="card">
-                   
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <strong>Expiring Leases </strong>
                         <span>Next 30 Days</span>
                     </div>
+                    <!-- Chart -->
                     <div class="card-body fixed-height">
                         <div class="chart-container">
                             <canvas id="leaseChart"></canvas>
                         </div>
-                        <!-- Sortable Expiring Leases Table -->
+                        <!-- Table -->
                         <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="expiringLeasesHead">
                             <thead class="thead-light">
                                 <tr>
@@ -250,20 +244,19 @@
                                 </tr>
                             </thead>
                         </table>
-
-                    <div class="fixed-height-expiring-leases-table-body" style="overflow-y: auto;">
-                        <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="expiringLeasesTable">
-                            <tbody>
-                                {% for lease in expiring_leases %}
-                                <tr>
-                                    <td class="pl-2">{{ lease.tenant.name }}</td>
-                                    <td class="pr-5">{{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
-                                    <td class="pr-5">{{ lease.end_date|date:"n-j" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                        <div class="fixed-height-expiring-leases-table-body" style="overflow-y: auto;">
+                            <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="expiringLeasesTable">
+                                <tbody>
+                                    {% for lease in expiring_leases %}
+                                    <tr>
+                                        <td class="pl-2">{{ lease.tenant.name }}</td>
+                                        <td class="pr-5">{{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                                        <td class="pr-5">{{ lease.end_date|date:"n-j" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -307,50 +300,49 @@
             </div>
         </div>
 
- <!-- All Units Table  -->
-<div class="card mt-4">
-    <div class="card-body p-0">
-        <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
-            <thead class="thead-light">
-                <tr>
-                    <th id="unitHeader0">Property</th>
-                    <th id="unitHeader1">Unit</th>
-                    <th id="unitHeader2">Address</th>
-                    <th id="unitHeader3">Tenant</th>
-                    <th id="unitHeader4" class="text-right">Rent</th>
-                    <th id="unitHeader5">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in all_units %}
-                <tr>
-                    <td>{{ unit.property.name }}</td>
-                    <td>#{{ unit.number }}</td>
-                    <td>{{ unit.property.address }}</td>
-                    <td>{{ unit.tenant_name }}</td>
-                    <td class="text-right">${{ unit.monthly_rent|floatformat:0|intcomma }}</td>
-                    <td>{{ unit.status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+        <!-- All Units  -->
+        <div class="card mt-4">
+            <div class="card-body p-0">
+                <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
+                    <thead class="thead-light">
+                        <tr>
+                            <th id="unitHeader0">Property</th>
+                            <th id="unitHeader1">Unit</th>
+                            <th id="unitHeader2">Address</th>
+                            <th id="unitHeader3">Tenant</th>
+                            <th id="unitHeader4" class="text-right">Rent</th>
+                            <th id="unitHeader5">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unit in all_units %}
+                        <tr>
+                            <td>{{ unit.property.name }}</td>
+                            <td>#{{ unit.number }}</td>
+                            <td>{{ unit.property.address }}</td>
+                            <td>{{ unit.tenant_name }}</td>
+                            <td class="text-right">${{ unit.monthly_rent|floatformat:0|intcomma }}</td>
+                            <td>{{ unit.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<a href="https://github.com/scottgriffinm/Property-Management-Demo" target="_blank" 
-   style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-size: 40px; color: #000;">
-    <i class="fab fa-github"></i>
-</a>
+        <!-- Github Link -->
+        <a href="https://github.com/scottgriffinm/Property-Management-Demo" target="_blank" 
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-size: 40px; color: #000;">
+            <i class="fab fa-github"></i>
+        </a>
     </div>
 
-    <!-- JavaScript Libraries -->
+    <!-- JS Libraries -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-<!-- Custom Greeting -->
+    <!-- Custom Greeting -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const now = new Date();
@@ -372,47 +364,50 @@
         });
     </script>
 
-<script>
-    $(document).ready(function () {
-        const table = $('#unitsDataTable').DataTable({
-            pageLength: 25,
-            lengthMenu: [10, 25, 50, 100],
-            order: [],
-            columnDefs: [
-                { targets: 3, className: 'text-right' }
-            ],
-            dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
-        });
+    <!-- Table Logic -->
 
-        // Header elements
-        const headers = [
-            document.getElementById("unitHeader0"),
-            document.getElementById("unitHeader1"),
-            document.getElementById("unitHeader2"),
-            document.getElementById("unitHeader3"),
-            document.getElementById("unitHeader4"),
-            document.getElementById("unitHeader5")
-        ];
-
-        // Original header text for each column
-        const originalText = headers.map(h => h.textContent.replace(/[\s▲▼]+$/, '').trim());
-
-        // Listen to DataTables sort events
-        table.on('order.dt', function () {
-            const order = table.order(); // [[colIndex, 'asc' or 'desc']]
-            const [colIndex, direction] = order[0];
-
-            headers.forEach((th, idx) => {
-                th.textContent = originalText[idx]; // Reset text
+    <!-- All Units Table -->
+    <script>
+        $(document).ready(function () {
+            const table = $('#unitsDataTable').DataTable({
+                pageLength: 25,
+                lengthMenu: [10, 25, 50, 100],
+                order: [],
+                columnDefs: [
+                    { targets: 3, className: 'text-right' }
+                ],
+                dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
             });
 
-            const arrow = direction === 'asc' ? ' ▲' : ' ▼';
-            headers[colIndex].textContent = originalText[colIndex] + arrow;
-        });
-    });
-</script>
+            // Header elements
+            const headers = [
+                document.getElementById("unitHeader0"),
+                document.getElementById("unitHeader1"),
+                document.getElementById("unitHeader2"),
+                document.getElementById("unitHeader3"),
+                document.getElementById("unitHeader4"),
+                document.getElementById("unitHeader5")
+            ];
 
-    <!-- Table Sorting: Applications (also selector button handling) -->
+            // Original header text for each column
+            const originalText = headers.map(h => h.textContent.replace(/[\s▲▼]+$/, '').trim());
+
+            // Listen to DataTables sort events
+            table.on('order.dt', function () {
+                const order = table.order();
+                const [colIndex, direction] = order[0];
+
+                headers.forEach((th, idx) => {
+                    th.textContent = originalText[idx]; // Reset text
+                });
+
+                const arrow = direction === 'asc' ? ' ▲' : ' ▼';
+                headers[colIndex].textContent = originalText[colIndex] + arrow;
+            });
+        });
+    </script>
+
+    <!-- Applications Table -->
     <script>
         let currentApplicationFilter = 'pending';
         let appSortDirection = {};
@@ -423,7 +418,7 @@
           rows.forEach(row => {
             row.style.display = (row.dataset.status === status) ? '' : 'none';
           });
-      
+          
           // Reset all buttons to neutral and highlight the selected one
           ['pending', 'approved', 'rejected'].forEach(s => {
             document.getElementById(`btn-${s}`).classList.remove('btn-secondary');
@@ -448,6 +443,7 @@
           appSortDirection[colIndex] = !appSortDirection[colIndex];
           const direction = appSortDirection[colIndex] ? 1 : -1;
       
+          // Sort rows
           rows.sort((a, b) => {
             let aText, bText;
             if (colIndex === 2) {
@@ -461,7 +457,7 @@
             }
           });
       
-          // Rebuild tbody
+          // Rebuild table body
           tbody.innerHTML = '';
           rows.forEach(row => tbody.appendChild(row));
       
@@ -470,7 +466,7 @@
             row.style.display = (row.dataset.status === currentApplicationFilter) ? '' : 'none';
           });
       
-          // Update sort arrow
+          // Update sorting arrow
           headers.forEach(header => {
             header.textContent = header.textContent.replace(/[\s▲▼]+$/, '');
           });
@@ -481,6 +477,7 @@
         }
       
         function reapplyStriping() {
+          // Reapply alternating striping of rows
           const tbody = document.querySelector('#applicationsTableBody tbody');
           const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
           visibleRows.forEach((row, index) => {
@@ -496,11 +493,11 @@
         });
       </script>
     
-    <!-- Table Sorting: Outstanding Balances -->
+    <!-- Outstanding Balances Table -->
     <script>
         let sortDirection = {};
     
-        function sortTable(colIndex) {
+        function sortOutstandingBalancesTable(colIndex) {
             const table = document.getElementById("balancesTable");
             const headerTable = document.getElementById("balancesTableHead");
             const headers = headerTable.querySelectorAll("th");
@@ -526,7 +523,7 @@
                 }
             });
     
-            // Re-render rows
+            // Rebuild table body
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
     
@@ -540,66 +537,66 @@
             headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
         }
     </script>
-    <!-- Table Sorting: Expiring Leases -->
-<script>
-    let expiringSortDirection = {};
+    <!-- Expiring Leases Table -->
+    <script>
+        let expiringSortDirection = {};
 
-    function sortExpiringLeasesTable(colIndex) {
-        const table = document.getElementById("expiringLeasesTable");
-        const headerTable = document.getElementById("expiringLeasesHead");
-        const headers = headerTable.querySelectorAll("th");
-        const tbody = table.tBodies[0];
-        const rows = Array.from(tbody.rows);
-        const isDate = colIndex === 2;
+        function sortExpiringLeasesTable(colIndex) {
+            const table = document.getElementById("expiringLeasesTable");
+            const headerTable = document.getElementById("expiringLeasesHead");
+            const headers = headerTable.querySelectorAll("th");
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+            const isDate = colIndex === 2;
 
-        // Toggle sort direction
-        expiringSortDirection[colIndex] = !expiringSortDirection[colIndex];
-        const direction = expiringSortDirection[colIndex] ? 1 : -1;
+            // Toggle sort direction
+            expiringSortDirection[colIndex] = !expiringSortDirection[colIndex];
+            const direction = expiringSortDirection[colIndex] ? 1 : -1;
 
-        rows.sort((a, b) => {
-            let aText = a.cells[colIndex].textContent.trim();
-            let bText = b.cells[colIndex].textContent.trim();
+            rows.sort((a, b) => {
+                let aText = a.cells[colIndex].textContent.trim();
+                let bText = b.cells[colIndex].textContent.trim();
 
-            if (isDate) {
-                // Parse M-D into proper Date objects (e.g. "4-5" → new Date(2025, 3, 5))
-                const [aMonth, aDay] = aText.split('-').map(Number);
-                const [bMonth, bDay] = bText.split('-').map(Number);
-                const aDate = new Date(2025, aMonth - 1, aDay);
-                const bDate = new Date(2025, bMonth - 1, bDay);
-                return direction * (aDate - bDate);
-            } else {
-                return direction * aText.localeCompare(bText);
-            }
-        });
+                if (isDate) {
+                    // Parse M-D into proper Date objects (e.g. "4-5" → new Date(2025, 3, 5))
+                    const [aMonth, aDay] = aText.split('-').map(Number);
+                    const [bMonth, bDay] = bText.split('-').map(Number);
+                    const aDate = new Date(2025, aMonth - 1, aDay);
+                    const bDate = new Date(2025, bMonth - 1, bDay);
+                    return direction * (aDate - bDate);
+                } else {
+                    return direction * aText.localeCompare(bText);
+                }
+            });
 
-        // Re-render table
-        tbody.innerHTML = '';
-        rows.forEach(row => tbody.appendChild(row));
+            // Re-render table
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
 
-        // Clear all arrows
-        headers.forEach(th => {
-            th.textContent = th.textContent.replace(/[\s▲▼]+$/, '');
-        });
+            // Clear all arrows
+            headers.forEach(th => {
+                th.textContent = th.textContent.replace(/[\s▲▼]+$/, '');
+            });
 
-        // Add arrow to active column
-        const arrow = direction === 1 ? ' ▲' : ' ▼';
-        headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
-    }
-</script>
+            // Add arrow to active column
+            const arrow = direction === 1 ? ' ▲' : ' ▼';
+            headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
+        }
+    </script>
 
     <!-- Charts -->
     <script>
-        // Rental Chart
+        // Listings (Occupied vs. Vacant) Chart
         var ctx1 = document.getElementById('rentalChart').getContext('2d');
         var rentalChart = new Chart(ctx1, {
             type: 'doughnut',
             data: {
-    labels: ['Vacant', 'Pending', 'Occupied'],
-    datasets: [{
-        data: [{{ vacant_no_apps_count }}, {{ vacant_with_apps_count }}, {{ occupied_count }}],
-        backgroundColor: [ '#FFA94D', '#6C5CE7', '#00B894'] // Purple, Teal, and Soft Yellow
-    }]
-},
+            labels: ['Vacant', 'Pending', 'Occupied'],
+            datasets: [{
+                data: [{{ vacant_no_apps_count }}, {{ vacant_with_apps_count }}, {{ occupied_count }}],
+                backgroundColor: [ '#FFA94D', '#6C5CE7', '#00B894'] // Purple, Teal, and Soft Yellow
+            }]
+        },
         options: {
             maintainAspectRatio: false,
                 responsive: true
@@ -608,45 +605,45 @@
 
         var expiringLeaseData = JSON.parse('{{ expiring_leases_distribution|safe }}');
 
-// Format dates as M-D (e.g., 4-5 instead of 04-05)
-var expiringDates = Object.keys(expiringLeaseData).map(function(dateStr) {
-    var d = new Date(dateStr);
-    var month = d.getMonth() + 1; // getMonth() returns 0-11
-    var day = d.getDate();
-    return `${month}-${day}`;
-});
+        // Format dates without leading zeros
+        var expiringDates = Object.keys(expiringLeaseData).map(function(dateStr) {
+            var d = new Date(dateStr);
+            var month = d.getMonth() + 1; // getMonth() returns 0-11
+            var day = d.getDate();
+            return `${month}-${day}`;
+        });
 
-var expiringCounts = Object.values(expiringLeaseData);
+        var expiringCounts = Object.values(expiringLeaseData);
 
-var ctx2 = document.getElementById('leaseChart').getContext('2d');
-var leaseChart = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-        labels: expiringDates,
-        datasets: [{
-            data: expiringCounts,
-            backgroundColor: '#FFA94D'
-        }]
-    },
-    options: {
-        maintainAspectRatio: false,
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    stepSize: 1,
-                    beginAtZero: true
+        var ctx2 = document.getElementById('leaseChart').getContext('2d');
+        var leaseChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: expiringDates,
+                datasets: [{
+                    data: expiringCounts,
+                    backgroundColor: '#FFA94D'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            stepSize: 1,
+                            beginAtZero: true
+                        }
+                    }]
                 }
-            }]
-        }
-    }
-});
+            }
+        });
     </script>
-</body>
 
+</body>
 </html>
