@@ -23,25 +23,45 @@
             -ms-user-select: none;
             cursor: pointer;
         }
-
         .card {
             margin-bottom: 20px;
         }
-
         .chart-container {
             position: relative;
             height: 200px;
         }
-
         .fixed-height {
             max-height: 300px;
             min-height: 300px;
             overflow-y: auto;
         }
-        .fixed-height-2 {
+        .fixed-height-outstanding-balances-table-body {
             max-height: 267px;
             min-height: 267px;
             overflow-y: auto;
+        }
+        .fixed-height-expiring-leases-table-body {
+            max-height: 240px;
+            min-height: 240px;
+            overflow-y: auto;
+        }
+        .fixed-height-applications-table-body {
+            max-height: 214px;
+            min-height: 214px;
+            overflow-y: auto;
+        }
+        .scrollable-table-wrapper {
+            max-height: 267px;
+            overflow-y: auto;
+        }
+        .scrollable-table-wrapper thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: #f8f9fa; /* same as your body background */
+        }
+        .custom-stripe {
+            background-color: rgba(0, 0, 0, 0.05) !important;
         }
     </style>
 </head>
@@ -49,48 +69,48 @@
 <body>
 
     <div class="container-fluid">
-        <h3 class="mb-4">Good Afternoon, User!</h3>
+        <h3 class="mb-4">Good Afternoon, User.</h3>
 
         <!-- Row 1 -->
         <div class="row">
            <!-- Outstanding Balances -->
-<div class="col-md-4">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <strong>Outstanding Balances</strong>
-            <span>Total: ${{ total_outstanding|floatformat:0|intcomma }}</span>
-        </div>
-        <div class="card-body p-0">
-            <!-- Table Header -->
-            <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTableHead">
-                <thead class="thead-light">
-                    <tr>
-                        <th onclick="sortTable(0)" class="pl-2" style="width: 35%;">Name</th>
-                        <th onclick="sortTable(1)" style="width: 30%;">Unit</th>
-                        <th onclick="sortTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days</th>
-                        <th onclick="sortTable(3)" class="pr-2" style="width: 15%; text-align: right;">Amount</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>Outstanding Balances</strong>
+                        <span>Total: ${{ total_outstanding|floatformat:0|intcomma }}</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Table Header -->
+                        <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTableHead">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th onclick="sortTable(0)" class="pl-2" style="width: 35%;">Name</th>
+                                    <th onclick="sortTable(1)" style="width: 30%;">Unit</th>
+                                    <th onclick="sortTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days</th>
+                                    <th onclick="sortTable(3)" class="pr-2" style="width: 15%; text-align: right;">Amount</th>
+                                </tr>
+                            </thead>
+                        </table>
 
-            <!-- Scrollable Table Body -->
-            <div class="fixed-height-2" style="overflow-y: auto; overflow-x: hidden;">
-                <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTable">
-                    <tbody>
-                        {% for lease in outstanding_balances %}
-                        <tr>
-                            <td class="pl-2">{{ lease.tenant.name }}</td>
-                            <td class="pr-4"> {{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
-                            <td class="text-right pr-3">{{ lease.outstanding_balance_age_days }}</td>
-                            <td class="text-right pr-3">${{ lease.outstanding_balance|floatformat:0|intcomma }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        <!-- Scrollable Table Body -->
+                        <div class="fixed-height-outstanding-balances-table-body" style="overflow-y: auto; overflow-x: hidden;">
+                            <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTable">
+                                <tbody>
+                                    {% for lease in outstanding_balances %}
+                                    <tr>
+                                        <td class="pl-2">{{ lease.tenant.name }}</td>
+                                        <td class="pr-4"> {{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                                        <td class="text-right pr-3">{{ lease.outstanding_balance_age_days }}</td>
+                                        <td class="text-right pr-3">${{ lease.outstanding_balance|floatformat:0|intcomma }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
             <!-- Listings (Vacant vs Occupied) -->
             <div class="col-md-4">
@@ -110,46 +130,90 @@
                 </div>
             </div>
 
-            <!-- Applications -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <strong>Applications</strong>
-                    </div>
-                    <div class="card-body fixed-height">
-                        <ul class="list-group">
-                            {% for app in rental_applications %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ app.applicant_name }} ({{ app.unit.property.name }} #{{ app.unit.number }})
-                                <span class="badge badge-primary badge-pill">{{ app.get_status_display }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+        <!-- Applications -->
+        <div class="col-md-4">
+            <div class="card">
+            <div class="card-header">
+                <strong>Applications</strong>
+            </div>
+            <div class="card-body p-0">
+                
+                <!-- Filter Buttons -->
+                <div class="btn-group d-flex m-2" role="group">
+                <button class="btn btn-light w-100" id="btn-pending" onclick="filterApplications('pending')">To Review</button>
+                <button class="btn btn-light w-100" id="btn-approved" onclick="filterApplications('approved')">Accepted</button>
+                <button class="btn btn-light w-100" id="btn-rejected" onclick="filterApplications('rejected')">Rejected</button>
                 </div>
+        
+                <!-- Table and Scrollable Body -->
+                <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTable">
+                <thead class="thead-light" style="position: sticky; top: 0; z-index: 2; background-color: #f8f9fa;">
+                    <tr>
+                    <th style="width: 35%; padding-left: 0.75rem;" onclick="sortApplicationsTable(0)" id="appHeader0">Name</th>
+                    <th style="width: 30%;" onclick="sortApplicationsTable(1)" id="appHeader1">Unit</th>
+                    <th style="width: 25%; padding-right: 1rem;" onclick="sortApplicationsTable(2)" id="appHeader2">Date Submitted</th>
+                    </tr>
+                </thead>
+                </table>
+        
+                <!-- Scrollable Table Body Outside of Table -->
+                <div class="fixed-height-applications-table-body" style="max-height: 150px; overflow-y: auto;">
+                    <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTableBody">
+                        <tbody>
+                        {% for app in rental_applications %}
+                        <tr data-status="{{ app.status }}">
+                            <td style="padding-left: 0.75rem;">{{ app.applicant_name }}</td>
+                            <td>{{ app.unit.property.name }} #{{ app.unit.number }}</td>
+                            <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">{{ app.submitted_on|date:"M j, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+        
+            </div>
             </div>
         </div>
+    </div>
 
         <!-- Row 2 -->
         <div class="row">
             <!-- Expiring Leases -->
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
-                        <strong>Expiring Leases (Next 30 Days)</strong>
+                   
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>Expiring Leases </strong>
+                        <span>Next 30 Days</span>
                     </div>
                     <div class="card-body fixed-height">
                         <div class="chart-container">
                             <canvas id="leaseChart"></canvas>
                         </div>
-                        <ul class="list-group mt-2">
-                            {% for lease in expiring_leases %}
-                            <li class="list-group-item">
-                                {{ lease.unit.property.name }} - {{ lease.tenant.name }}<br>
-                                <small>Ends: {{ lease.end_date }}</small>
-                            </li>
-                            {% endfor %}
-                        </ul>
+                        <!-- Sortable Expiring Leases Table -->
+                        <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="expiringLeasesHead">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th onclick="sortExpiringLeasesTable(0)" class="pl-2" style="width: 35%;">Name</th>
+                                    <th onclick="sortExpiringLeasesTable(1)" style="width: 27%;">Unit</th>
+                                    <th onclick="sortExpiringLeasesTable(2)" class="pr-2" style="width: 10%;">End Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    <div class="fixed-height-expiring-leases-table-body" style="overflow-y: auto;">
+                        <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="expiringLeasesTable">
+                            <tbody>
+                                {% for lease in expiring_leases %}
+                                <tr>
+                                    <td class="pl-2">{{ lease.tenant.name }}</td>
+                                    <td class="pr-5">{{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                                    <td class="pr-5">{{ lease.end_date|date:"n-j" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -198,7 +262,91 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Outstanding Balances Table Sorting -->
+    <!-- Table Sorting: Applications (also selector button handling) -->
+    <script>
+        let currentApplicationFilter = 'pending';
+        let appSortDirection = {};
+      
+        function filterApplications(status) {
+          currentApplicationFilter = status;
+          const rows = document.querySelectorAll('#applicationsTableBody tbody tr');
+          rows.forEach(row => {
+            row.style.display = (row.dataset.status === status) ? '' : 'none';
+          });
+      
+          // Reset all buttons to neutral and highlight the selected one
+          ['pending', 'approved', 'rejected'].forEach(s => {
+            document.getElementById(`btn-${s}`).classList.remove('btn-secondary');
+            document.getElementById(`btn-${s}`).classList.add('btn-light');
+          });
+          document.getElementById(`btn-${status}`).classList.remove('btn-light');
+          document.getElementById(`btn-${status}`).classList.add('btn-secondary');
+      
+          reapplyStriping();
+        }
+      
+        function sortApplicationsTable(colIndex) {
+          const tbody = document.querySelector('#applicationsTableBody tbody');
+          const rows = Array.from(tbody.rows);
+          const headers = [
+            document.getElementById("appHeader0"),
+            document.getElementById("appHeader1"),
+            document.getElementById("appHeader2")
+          ];
+      
+          // Toggle sort direction for this column
+          appSortDirection[colIndex] = !appSortDirection[colIndex];
+          const direction = appSortDirection[colIndex] ? 1 : -1;
+      
+          rows.sort((a, b) => {
+            let aText, bText;
+            if (colIndex === 2) {
+              aText = a.cells[2].getAttribute('data-timestamp');
+              bText = b.cells[2].getAttribute('data-timestamp');
+              return direction * (new Date(aText) - new Date(bText));
+            } else {
+              aText = a.cells[colIndex].textContent.trim();
+              bText = b.cells[colIndex].textContent.trim();
+              return direction * aText.localeCompare(bText);
+            }
+          });
+      
+          // Rebuild tbody
+          tbody.innerHTML = '';
+          rows.forEach(row => tbody.appendChild(row));
+      
+          // Reapply current filter
+          rows.forEach(row => {
+            row.style.display = (row.dataset.status === currentApplicationFilter) ? '' : 'none';
+          });
+      
+          // Update sort arrow
+          headers.forEach(header => {
+            header.textContent = header.textContent.replace(/[\s▲▼]+$/, '');
+          });
+          const arrow = direction === 1 ? ' ▲' : ' ▼';
+          headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
+      
+          reapplyStriping();
+        }
+      
+        function reapplyStriping() {
+          const tbody = document.querySelector('#applicationsTableBody tbody');
+          const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
+          visibleRows.forEach((row, index) => {
+            row.classList.remove('custom-stripe');
+            if (index % 2 === 1) {
+              row.classList.add('custom-stripe');
+            }
+          });
+        }
+      
+        document.addEventListener('DOMContentLoaded', () => {
+          filterApplications('pending');
+        });
+      </script>
+    
+    <!-- Table Sorting: Outstanding Balances -->
     <script>
         let sortDirection = {};
     
@@ -242,9 +390,54 @@
             headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
         }
     </script>
+    <!-- Table Sorting: Expiring Leases -->
+<script>
+    let expiringSortDirection = {};
 
+    function sortExpiringLeasesTable(colIndex) {
+        const table = document.getElementById("expiringLeasesTable");
+        const headerTable = document.getElementById("expiringLeasesHead");
+        const headers = headerTable.querySelectorAll("th");
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+        const isDate = colIndex === 2;
 
-    <!-- Chart.js -->
+        // Toggle sort direction
+        expiringSortDirection[colIndex] = !expiringSortDirection[colIndex];
+        const direction = expiringSortDirection[colIndex] ? 1 : -1;
+
+        rows.sort((a, b) => {
+            let aText = a.cells[colIndex].textContent.trim();
+            let bText = b.cells[colIndex].textContent.trim();
+
+            if (isDate) {
+                // Parse M-D into proper Date objects (e.g. "4-5" → new Date(2025, 3, 5))
+                const [aMonth, aDay] = aText.split('-').map(Number);
+                const [bMonth, bDay] = bText.split('-').map(Number);
+                const aDate = new Date(2025, aMonth - 1, aDay);
+                const bDate = new Date(2025, bMonth - 1, bDay);
+                return direction * (aDate - bDate);
+            } else {
+                return direction * aText.localeCompare(bText);
+            }
+        });
+
+        // Re-render table
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Clear all arrows
+        headers.forEach(th => {
+            th.textContent = th.textContent.replace(/[\s▲▼]+$/, '');
+        });
+
+        // Add arrow to active column
+        const arrow = direction === 1 ? ' ▲' : ' ▼';
+        headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
+    }
+</script>
+
+    <!-- Charts -->
     <script>
         // Rental Chart
         var ctx1 = document.getElementById('rentalChart').getContext('2d');
@@ -263,36 +456,46 @@
         }
         });
 
-        // Lease Expiry Chart
-        var ctx2 = document.getElementById('leaseChart').getContext('2d');
-        var expiringLabels = [
-            {% for lease in expiring_leases %}
-        "{{ lease.unit.property.name }}",
-            {% endfor %}
-        ];
-        var leaseChart = new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: expiringLabels,
-                datasets: [{
-                    label: 'Expiring Leases',
-                    data: expiringLabels.map(() => 1),
-                    backgroundColor: '#FFCE56'
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                responsive: true,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            stepSize: 1,
-                            beginAtZero: true
-                        }
-                    }]
-                }
+        var expiringLeaseData = JSON.parse('{{ expiring_leases_distribution|safe }}');
+
+// Format dates as M-D (e.g., 4-5 instead of 04-05)
+var expiringDates = Object.keys(expiringLeaseData).map(function(dateStr) {
+    var d = new Date(dateStr);
+    var month = d.getMonth() + 1; // getMonth() returns 0-11
+    var day = d.getDate();
+    return `${month}-${day}`;
+});
+
+var expiringCounts = Object.values(expiringLeaseData);
+
+var ctx2 = document.getElementById('leaseChart').getContext('2d');
+var leaseChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: expiringDates,
+        datasets: [{
+            data: expiringCounts,
+            backgroundColor: '#FFCE56'
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
             }
-        });
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    stepSize: 1,
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
     </script>
 </body>
 
