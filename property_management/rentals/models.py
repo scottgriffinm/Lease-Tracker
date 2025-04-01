@@ -15,6 +15,7 @@ class Unit(models.Model):
     number = models.CharField(max_length=100)
     property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True)
     monthly_rent = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    is_occupied = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.property.name if self.property else 'No Property'})"
@@ -41,6 +42,8 @@ class Lease(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     monthly_rent = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    outstanding_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    outstanding_balance_age_days = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Lease: {self.tenant.name} - {self.unit.name}"

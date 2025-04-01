@@ -15,6 +15,15 @@
             background-color: #f8f9fa;
         }
 
+        th {
+            /* Disable text selecting */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            cursor: pointer;
+        }
+
         .card {
             margin-bottom: 20px;
         }
@@ -29,6 +38,12 @@
             min-height: 300px;
             overflow-y: auto;
         }
+
+        .fixed-height-2 {
+            max-height: 267px;
+            min-height: 267px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -37,23 +52,48 @@
     <div class="container-fluid">
         <h3 class="mb-4">Good Afternoon, User!</h3>
 
+        <!-- Row 1 -->
         <div class="row">
             <!-- Outstanding Balances -->
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <strong>Outstanding Balances</strong>
-                        <span>Total: ${{ total_outstanding|floatformat:2|intcomma }}</span>
+                        <span>Total: ${{ total_outstanding|floatformat:0|intcomma }}</span>
                     </div>
-                    <div class="card-body fixed-height">
-                        <ul class="list-group">
-                            {% for lease in outstanding_balances %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ lease.tenant.name }} ({{ lease.unit.property.name }} #{{ lease.unit.number }})
-                                <span>${{ lease.outstanding_balance|floatformat:2|intcomma }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
+                    <div class="card-body p-0">
+                        <!-- Table Header -->
+                        <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;"
+                            id="balancesTableHead">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th onclick="sortTable(0)" class="pl-2" style="width: 35%;">Name</th>
+                                    <th onclick="sortTable(1)" style="width: 35%;">Unit</th>
+                                    <th onclick="sortTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days
+                                    </th>
+                                    <th onclick="sortTable(3)" class="pr-2" style="width: 15%; text-align: right;">
+                                        Amount</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <!-- Scrollable Table Body -->
+                        <div class="fixed-height-2" style="overflow-y: auto; overflow-x: hidden;">
+                            <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;"
+                                id="balancesTable">
+                                <tbody>
+                                    {% for lease in outstanding_balances %}
+                                    <tr>
+                                        <td class="pl-2">{{ lease.tenant.name }}</td>
+                                        <td>{{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                                        <td class="text-right pr-4">{{ lease.outstanding_balance_age_days }}</td>
+                                        <td class="text-right pr-2">${{ lease.outstanding_balance|floatformat:0|intcomma
+                                            }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -96,7 +136,7 @@
             </div>
         </div>
 
-        <!-- Row 2: Expiring Leases, Tasks, Recent Activity -->
+        <!-- Row 2 -->
         <div class="row">
             <!-- Expiring Leases -->
             <div class="col-md-4">
@@ -160,13 +200,59 @@
 
     </div>
 
-    <!-- JS Libraries -->
+    <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Chart.js Setup -->
+    <!-- Outstanding Balances Table Sorting -->
     <script>
-        // 1. Rental Chart
+        let sortDirection = {};
+
+        function sortTable(colIndex) {
+            const table = document.getElementById("balancesTable");
+            const headerTable = document.getElementById("balancesTableHead");
+            const headers = headerTable.querySelectorAll("th");
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+            const isNumeric = colIndex >= 2;
+
+            // Toggle sort direction
+            sortDirection[colIndex] = !sortDirection[colIndex];
+            const direction = sortDirection[colIndex] ? 1 : -1;
+
+            // Sort rows
+            rows.sort((a, b) => {
+                let aText = a.cells[colIndex].textContent.trim();
+                let bText = b.cells[colIndex].textContent.trim();
+
+                if (isNumeric) {
+                    aText = aText.replace(/[^\d.-]/g, '');
+                    bText = bText.replace(/[^\d.-]/g, '');
+                    return direction * (parseFloat(aText) - parseFloat(bText));
+                } else {
+                    return direction * aText.localeCompare(bText);
+                }
+            });
+
+            // Re-render rows
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Clear all header arrows
+            headers.forEach(th => {
+                th.textContent = th.textContent.replace(/[\s▲▼]+$/, '');
+            });
+
+            // Add arrow to active column
+            const arrow = direction === 1 ? ' ▲' : ' ▼';
+            headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
+        }
+    </script>
+
+
+    <!-- Chart.js -->
+    <script>
+        // Rental Chart
         var ctx1 = document.getElementById('rentalChart').getContext('2d');
         var rentalChart = new Chart(ctx1, {
             type: 'doughnut',
@@ -174,20 +260,20 @@
                 labels: ['Vacant', 'Occupied'],
                 datasets: [{
                     data: [{{ vacant_count }}, {{ occupied_count }}],
-                    backgroundColor: ['#FF6384', '#36A2EB']
-                }]
+            backgroundColor: ['#FF6384', '#36A2EB']
+        }]
             },
-            options: {
-                maintainAspectRatio: false,
+        options: {
+            maintainAspectRatio: false,
                 responsive: true
-            }
+        }
         });
 
-        // 2. Lease Expiry Chart
+        // Lease Expiry Chart
         var ctx2 = document.getElementById('leaseChart').getContext('2d');
         var expiringLabels = [
             {% for lease in expiring_leases %}
-            "{{ lease.unit.property.name }}",
+        "{{ lease.unit.property.name }}",
             {% endfor %}
         ];
         var leaseChart = new Chart(ctx2, {

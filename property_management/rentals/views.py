@@ -1,36 +1,19 @@
 from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Sum, F, OuterRef, Subquery
-from .models import Property, Unit, Tenant, Lease, Application, Charge, Payment
+from .models import Property, Unit, Tenant, Lease, Application
 
 def dashboard(request):
     now = timezone.now().date()
 
-    # 1. Outstanding balances - dynamically calculated
-    leases = Lease.objects.select_related('tenant', 'unit__property').prefetch_related('charges', 'payments')
+    # 1. Outstanding balances (using updated field names)
+    leases = Lease.objects.filter(outstanding_balance__gt=0).select_related('tenant', 'unit__property')
+    outstanding_leases = list(leases)
+    total_outstanding = sum(lease.outstanding_balance for lease in leases)
 
-    outstanding_leases = []
-    total_outstanding = 0
-
-    for lease in leases:
-        total_charges = lease.charges.aggregate(total=Sum('amount'))['total'] or 0
-        total_payments = lease.payments.aggregate(total=Sum('amount'))['total'] or 0
-        balance = total_charges - total_payments
-
-        if balance > 0:
-            lease.outstanding_balance = balance
-            outstanding_leases.append(lease)
-            total_outstanding += balance
-
-    # 2. Rental listings: vacant vs occupied
-    all_units = Unit.objects.select_related('property')
-    active_leases = Lease.objects.filter(
-        end_date__gte=now
-    ).values_list('unit_id', flat=True)
-
-    occupied_count = all_units.filter(id__in=active_leases).count()
-    vacant_count = all_units.exclude(id__in=active_leases).count()
+    # 2. Rental listings: vacant vs occupied (using precomputed flag)
+    occupied_count = Unit.objects.filter(is_occupied=True).count()
+    vacant_count = Unit.objects.filter(is_occupied=False).count()
 
     # 3. Rental applications (latest 5)
     rental_applications = Application.objects.select_related('unit__property').order_by('-submitted_on')[:5]

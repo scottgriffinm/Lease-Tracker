@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from faker import Faker
 import random
+from decimal import Decimal
 from datetime import timedelta
 from django.utils import timezone
 from rentals.models import Property, Unit, Tenant, Lease, Application, Charge, Payment
@@ -60,7 +61,7 @@ class Command(BaseCommand):
 
         # Pick ~2% of tenants as "problem tenants"
         total_tenants = len(tenants)
-        num_problem_tenants = max(1, int(total_tenants * 0.02))  # at least one
+        num_problem_tenants = max(1, int(total_tenants * 0.02))
         problem_tenant_indexes = set(random.sample(range(total_tenants), num_problem_tenants))
 
         # Create leases and simulate charges + payments
@@ -75,19 +76,27 @@ class Command(BaseCommand):
                 monthly_rent=unit.monthly_rent
             )
 
+            # Mark unit as occupied
+            unit.is_occupied = True
+            unit.save()
+
             today = timezone.now().date()
             current_date = start.replace(day=1)
             is_problem_tenant = i in problem_tenant_indexes
             missed_months = random.choice([1, 2]) if is_problem_tenant else 0
 
-            # Generate all rent due dates
             charge_dates = []
             while current_date <= today and current_date <= end:
                 charge_dates.append(current_date.replace(day=1))
                 current_date += timedelta(days=32)
                 current_date = current_date.replace(day=1)
 
-            unpaid_dates = set(charge_dates[-missed_months:]) if missed_months else set()
+            # Only consider unpaid charges with a due date in the past
+            past_charge_dates = [d for d in charge_dates if d < today]
+            unpaid_dates = set(past_charge_dates[-missed_months:]) if missed_months else set()
+
+            total_charges = Decimal('0.00')
+            total_payments = Decimal('0.00')
 
             for due_date in charge_dates:
                 Charge.objects.create(
@@ -96,6 +105,7 @@ class Command(BaseCommand):
                     amount=lease.monthly_rent,
                     due_date=due_date
                 )
+                total_charges += lease.monthly_rent
 
                 if due_date not in unpaid_dates:
                     Payment.objects.create(
@@ -103,6 +113,19 @@ class Command(BaseCommand):
                         amount=lease.monthly_rent,
                         date=due_date - timedelta(days=1)
                     )
+                    total_payments += lease.monthly_rent
+
+            outstanding_balance = total_charges - total_payments
+            lease.outstanding_balance = outstanding_balance
+
+            # Compute age of oldest unpaid charge
+            if unpaid_dates:
+                oldest_unpaid_date = min(unpaid_dates)
+                lease.outstanding_balance_age_days = (today - oldest_unpaid_date).days
+            else:
+                lease.outstanding_balance_age_days = 0
+
+            lease.save()
 
         # Create rental applications (random units including vacant)
         for _ in range(30):
@@ -114,4 +137,4 @@ class Command(BaseCommand):
                 submitted_on=fake.date_time_between(start_date='-30d', end_date='now')
             )
 
-        self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully with realistic occupancy and rent status!"))
+        self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully with realistic occupancy and precomputed balances!"))
