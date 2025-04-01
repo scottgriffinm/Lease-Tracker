@@ -247,7 +247,8 @@
                         <ul class="list-group">
                             {% for activity in recent_activity %}
                             <li class="list-group-item">
-                                {{ activity }}
+                                <span>{{ activity.message }}</span><br>
+                                <small>{{ activity.timestamp|date:"M j, Y g:i A" }}</small>
                             </li>
                             {% endfor %}
                         </ul>
