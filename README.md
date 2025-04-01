@@ -47,3 +47,7 @@ The dashboard displays outstanding balances, unit statuses (occupied, vacant, pe
 
 **License:**  
 MIT License
+
+
+<img width="1469" alt="Screenshot 2025-04-01 at 1 26 09 PM" src="https://github.com/user-attachments/assets/fea69ff7-6234-4f60-ab30-26e66dd23e23" />
+
