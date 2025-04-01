@@ -1,209 +1,219 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Rental Dashboard</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <style>
-    body {
-      padding: 20px;
-      background-color: #f8f9fa;
-    }
-    .card {
-      margin-bottom: 20px;
-    }
-    .chart-container {
-      position: relative;
-      height: 200px;
-    }
-    /* This class fixes the height and makes the content scrollable */
-    .fixed-height {
-      max-height: 300px;
-      min-height: 300px;
-      overflow-y: auto;
-    }
-  </style>
+<head>
+    <meta charset="utf-8">
+    <title>Rental Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+        }
+
+        .fixed-height {
+            max-height: 300px;
+            min-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container-fluid">
-  <h3 class="mb-4">Good Afternoon, User!</h3>
-  
-  <div class="row">
-    <!-- Outstanding Balances -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <strong>Outstanding Balances (Total: ${{ total_outstanding }})</strong>
+    <div class="container-fluid">
+        <h3 class="mb-4">Good Afternoon, User!</h3>
+
+        <div class="row">
+            <!-- Outstanding Balances -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <strong>Outstanding Balances</strong>
+                        <span>Total: ${{ total_outstanding|floatformat:2|intcomma }}</span>
+                    </div>
+                    <div class="card-body fixed-height">
+                        <ul class="list-group">
+                            {% for lease in outstanding_balances %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ lease.tenant.name }} ({{ lease.unit.property.name }} #{{ lease.unit.number }})
+                                <span>${{ lease.outstanding_balance|floatformat:2|intcomma }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rental Listings (Vacant vs Occupied) -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Rental Listings</strong>
+                    </div>
+                    <div class="card-body fixed-height text-center">
+                        <div class="chart-container">
+                            <canvas id="rentalChart"></canvas>
+                        </div>
+                        <p class="mt-2">
+                            Vacant Units: {{ vacant_count|intcomma }} |
+                            Occupied Units: {{ occupied_count|intcomma }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rental Applications -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Rental Applications</strong>
+                    </div>
+                    <div class="card-body fixed-height">
+                        <ul class="list-group">
+                            {% for app in rental_applications %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ app.applicant_name }} ({{ app.unit.property.name }} #{{ app.unit.number }})
+                                <span class="badge badge-primary badge-pill">{{ app.get_status_display }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body fixed-height">
-          <ul class="list-group">
-            {% for lease in outstanding_balances %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ lease.tenant.name }} ({{ lease.unit.property.name }} #{{ lease.unit.number }})
-                <span>${{ lease.tenant.current_balance }}</span>
-              </li>
-            {% endfor %}
-          </ul>
+
+        <!-- Row 2: Expiring Leases, Tasks, Recent Activity -->
+        <div class="row">
+            <!-- Expiring Leases -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Expiring Leases (Next 30 Days)</strong>
+                    </div>
+                    <div class="card-body fixed-height">
+                        <div class="chart-container">
+                            <canvas id="leaseChart"></canvas>
+                        </div>
+                        <ul class="list-group mt-2">
+                            {% for lease in expiring_leases %}
+                            <li class="list-group-item">
+                                {{ lease.unit.property.name }} - {{ lease.tenant.name }}<br>
+                                <small>Ends: {{ lease.end_date }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Tasks</strong>
+                    </div>
+                    <div class="card-body fixed-height">
+                        <ul class="list-group">
+                            {% for task in tasks %}
+                            <li class="list-group-item">
+                                <strong>{{ task.title }}</strong><br>
+                                <small>Due: {{ task.due_date }} | Status: {{ task.status }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Recent Activity</strong>
+                    </div>
+                    <div class="card-body fixed-height">
+                        <ul class="list-group">
+                            {% for activity in recent_activity %}
+                            <li class="list-group-item">
+                                {{ activity }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
     </div>
 
-    <!-- Rental Listings (Vacant vs Occupied) -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <strong>Rental Listings</strong>
-        </div>
-        <div class="card-body fixed-height text-center">
-          <div class="chart-container">
-            <canvas id="rentalChart"></canvas>
-          </div>
-          <p class="mt-2">Vacant Units: {{ vacant_count }} | Occupied Units: {{ occupied_count }}</p>
-        </div>
-      </div>
-    </div>
+    <!-- JS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Rental Applications -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <strong>Rental Applications</strong>
-        </div>
-        <div class="card-body fixed-height">
-          <ul class="list-group">
-            {% for app in rental_applications %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ app.applicant_name }} ({{ app.unit.property.name }} #{{ app.unit.number }})
-                <span class="badge badge-primary badge-pill">{{ app.get_status_display }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+    <!-- Chart.js Setup -->
+    <script>
+        // 1. Rental Chart
+        var ctx1 = document.getElementById('rentalChart').getContext('2d');
+        var rentalChart = new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vacant', 'Occupied'],
+                datasets: [{
+                    data: [{{ vacant_count }}, {{ occupied_count }}],
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true
+            }
+        });
 
-  <!-- Row 2: Expiring Leases, Tasks, Recent Activity -->
-  <div class="row">
-    <!-- Expiring Leases -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <strong>Expiring Leases (Next 30 Days)</strong>
-        </div>
-        <div class="card-body fixed-height">
-          <div class="chart-container">
-            <canvas id="leaseChart"></canvas>
-          </div>
-          <ul class="list-group mt-2">
+        // 2. Lease Expiry Chart
+        var ctx2 = document.getElementById('leaseChart').getContext('2d');
+        var expiringLabels = [
             {% for lease in expiring_leases %}
-              <li class="list-group-item">
-                {{ lease.unit.property.name }} - {{ lease.tenant.name }}<br>
-                <small>Ends: {{ lease.end_date }}</small>
-              </li>
+            "{{ lease.unit.property.name }}",
             {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tasks -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <strong>Tasks</strong>
-        </div>
-        <div class="card-body fixed-height">
-          <ul class="list-group">
-            {% for task in tasks %}
-              <li class="list-group-item">
-                <strong>{{ task.title }}</strong><br>
-                <small>Due: {{ task.due_date }} | Status: {{ task.status }}</small>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <strong>Recent Activity</strong>
-        </div>
-        <div class="card-body fixed-height">
-          <ul class="list-group">
-            {% for activity in recent_activity %}
-              <li class="list-group-item">
-                {{ activity }}
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- JS Libraries -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<!-- Chart.js Setup -->
-<script>
-  // 1. Rental Chart
-  var ctx1 = document.getElementById('rentalChart').getContext('2d');
-  var rentalChart = new Chart(ctx1, {
-    type: 'doughnut',
-    data: {
-      labels: ['Vacant', 'Occupied'],
-      datasets: [{
-        data: [{{ vacant_count }}, {{ occupied_count }}],
-        backgroundColor: ['#FF6384', '#36A2EB']
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      responsive: true
-    }
-  });
-
-  // 2. Lease Expiry Chart
-  var ctx2 = document.getElementById('leaseChart').getContext('2d');
-  var expiringLabels = [
-    {% for lease in expiring_leases %}
-      "{{ lease.unit.property.name }}",
-    {% endfor %}
-  ];
-  var leaseChart = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-      labels: expiringLabels,
-      datasets: [{
-        label: 'Expiring Leases',
-        data: expiringLabels.map(() => 1),
-        backgroundColor: '#FFCE56'
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      responsive: true,
-      scales: {
-        yAxes: [{
-          ticks: {
-            stepSize: 1,
-            beginAtZero: true
-          }
-        }]
-      }
-    }
-  });
-</script>
+        ];
+        var leaseChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: expiringLabels,
+                datasets: [{
+                    label: 'Expiring Leases',
+                    data: expiringLabels.map(() => 1),
+                    backgroundColor: '#FFCE56'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            stepSize: 1,
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
 </body>
+
 </html>

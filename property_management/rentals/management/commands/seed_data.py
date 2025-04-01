@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 import random
 from datetime import timedelta
-from rentals.models import Property, Unit, Tenant, Lease, Application
+from django.utils import timezone
+from rentals.models import Property, Unit, Tenant, Lease, Application, Charge, Payment
 
 fake = Faker()
 
@@ -14,13 +15,14 @@ class Command(BaseCommand):
 
         # Clear old data
         Application.objects.all().delete()
+        Payment.objects.all().delete()
+        Charge.objects.all().delete()
         Lease.objects.all().delete()
         Tenant.objects.all().delete()
         Unit.objects.all().delete()
         Property.objects.all().delete()
 
         # Create properties and units
-        properties = []
         for _ in range(10):
             prop = Property.objects.create(
                 name=random.choice([
@@ -31,9 +33,7 @@ class Command(BaseCommand):
                 ]),
                 address=fake.address()
             )
-            properties.append(prop)
 
-            # Create 500 units for each property
             for i in range(1, 501):
                 Unit.objects.create(
                     name=f"Unit {i}",
@@ -42,29 +42,32 @@ class Command(BaseCommand):
                     monthly_rent=random.randint(800, 2500)
                 )
 
-        # Create tenants
+        # Create tenants & assign units (77% occupancy)
+        all_units = list(Unit.objects.all())
+        random.shuffle(all_units)
+        num_occupied_units = int(len(all_units) * 0.77)
+        occupied_units = all_units[:num_occupied_units]
+        vacant_units = all_units[num_occupied_units:]
+
         tenants = []
-        available_units = list(Unit.objects.all())
-        random.shuffle(available_units)
-
-        for _ in range(150):  # Create 150 tenants
-            unit = available_units.pop() if available_units else None
-            if not unit:
-                break
-
+        for unit in occupied_units:
             tenant = Tenant.objects.create(
                 name=fake.name(),
                 email=fake.email(),
                 phone=fake.phone_number(),
-                current_balance=random.choice([0, 0, 0, 50, 100, 250, 500])
             )
             tenants.append((tenant, unit))
 
-        # Create leases
-        for tenant, unit in tenants:
-            start = fake.date_between(start_date='-2y', end_date='today')
-            end = start + timedelta(days=random.randint(180, 365))
-            Lease.objects.create(
+        # Pick ~2% of tenants as "problem tenants"
+        total_tenants = len(tenants)
+        num_problem_tenants = max(1, int(total_tenants * 0.02))  # at least one
+        problem_tenant_indexes = set(random.sample(range(total_tenants), num_problem_tenants))
+
+        # Create leases and simulate charges + payments
+        for i, (tenant, unit) in enumerate(tenants):
+            start = fake.date_between(start_date='-1y', end_date='-90d')
+            end = start + timedelta(days=365)
+            lease = Lease.objects.create(
                 tenant=tenant,
                 unit=unit,
                 start_date=start,
@@ -72,7 +75,36 @@ class Command(BaseCommand):
                 monthly_rent=unit.monthly_rent
             )
 
-        # Create rental applications
+            today = timezone.now().date()
+            current_date = start.replace(day=1)
+            is_problem_tenant = i in problem_tenant_indexes
+            missed_months = random.choice([1, 2]) if is_problem_tenant else 0
+
+            # Generate all rent due dates
+            charge_dates = []
+            while current_date <= today and current_date <= end:
+                charge_dates.append(current_date.replace(day=1))
+                current_date += timedelta(days=32)
+                current_date = current_date.replace(day=1)
+
+            unpaid_dates = set(charge_dates[-missed_months:]) if missed_months else set()
+
+            for due_date in charge_dates:
+                Charge.objects.create(
+                    lease=lease,
+                    description="Monthly Rent",
+                    amount=lease.monthly_rent,
+                    due_date=due_date
+                )
+
+                if due_date not in unpaid_dates:
+                    Payment.objects.create(
+                        lease=lease,
+                        amount=lease.monthly_rent,
+                        date=due_date - timedelta(days=1)
+                    )
+
+        # Create rental applications (random units including vacant)
         for _ in range(30):
             unit = random.choice(Unit.objects.all())
             Application.objects.create(
@@ -82,4 +114,4 @@ class Command(BaseCommand):
                 submitted_on=fake.date_time_between(start_date='-30d', end_date='now')
             )
 
-        self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully!"))
+        self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully with realistic occupancy and rent status!"))

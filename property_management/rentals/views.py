@@ -1,19 +1,32 @@
 from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
-from .models import Property, Unit, Tenant, Lease, Application
+from django.db.models import Sum, F, OuterRef, Subquery
+from .models import Property, Unit, Tenant, Lease, Application, Charge, Payment
 
 def dashboard(request):
-    # 1. Outstanding balances (sum of Tenant.current_balance)
-    outstanding_balances = Lease.objects.filter(
-        tenant__current_balance__gt=0
-    ).select_related('tenant', 'unit__property')
-    total_outstanding = sum([lease.tenant.current_balance for lease in outstanding_balances])
+    now = timezone.now().date()
+
+    # 1. Outstanding balances - dynamically calculated
+    leases = Lease.objects.select_related('tenant', 'unit__property').prefetch_related('charges', 'payments')
+
+    outstanding_leases = []
+    total_outstanding = 0
+
+    for lease in leases:
+        total_charges = lease.charges.aggregate(total=Sum('amount'))['total'] or 0
+        total_payments = lease.payments.aggregate(total=Sum('amount'))['total'] or 0
+        balance = total_charges - total_payments
+
+        if balance > 0:
+            lease.outstanding_balance = balance
+            outstanding_leases.append(lease)
+            total_outstanding += balance
 
     # 2. Rental listings: vacant vs occupied
     all_units = Unit.objects.select_related('property')
     active_leases = Lease.objects.filter(
-        end_date__gte=timezone.now()
+        end_date__gte=now
     ).values_list('unit_id', flat=True)
 
     occupied_count = all_units.filter(id__in=active_leases).count()
@@ -23,7 +36,6 @@ def dashboard(request):
     rental_applications = Application.objects.select_related('unit__property').order_by('-submitted_on')[:5]
 
     # 4. Expiring leases (next 30 days)
-    now = timezone.now().date()
     next_30_days = now + timedelta(days=30)
     expiring_leases = Lease.objects.filter(
         end_date__lte=next_30_days, end_date__gte=now
@@ -41,7 +53,7 @@ def dashboard(request):
     ]
 
     context = {
-        'outstanding_balances': outstanding_balances,
+        'outstanding_balances': outstanding_leases,
         'total_outstanding': total_outstanding,
         'occupied_count': occupied_count,
         'vacant_count': vacant_count,
