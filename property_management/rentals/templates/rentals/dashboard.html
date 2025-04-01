@@ -19,13 +19,19 @@
       position: relative;
       height: 200px;
     }
+    /* This class fixes the height and makes the content scrollable */
+    .fixed-height {
+      max-height: 300px;
+      min-height: 300px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
 
 <div class="container-fluid">
   <h3 class="mb-4">Good Afternoon, User!</h3>
-
+  
   <div class="row">
     <!-- Outstanding Balances -->
     <div class="col-md-4">
@@ -33,7 +39,7 @@
         <div class="card-header">
           <strong>Outstanding Balances - Rentals</strong>
         </div>
-        <div class="card-body">
+        <div class="card-body fixed-height">
           <h5>Total: ${{ total_outstanding }}</h5>
           <ul class="list-group">
             {% for lease in outstanding_balances %}
@@ -53,7 +59,7 @@
         <div class="card-header">
           <strong>Rental Listings</strong>
         </div>
-        <div class="card-body text-center">
+        <div class="card-body fixed-height text-center">
           <div class="chart-container">
             <canvas id="rentalChart"></canvas>
           </div>
@@ -68,7 +74,7 @@
         <div class="card-header">
           <strong>Rental Applications</strong>
         </div>
-        <div class="card-body">
+        <div class="card-body fixed-height">
           <ul class="list-group">
             {% for app in rental_applications %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -90,7 +96,7 @@
         <div class="card-header">
           <strong>Expiring Leases (Next 30 Days)</strong>
         </div>
-        <div class="card-body">
+        <div class="card-body fixed-height">
           <div class="chart-container">
             <canvas id="leaseChart"></canvas>
           </div>
@@ -112,7 +118,7 @@
         <div class="card-header">
           <strong>Tasks</strong>
         </div>
-        <div class="card-body">
+        <div class="card-body fixed-height">
           <ul class="list-group">
             {% for task in tasks %}
               <li class="list-group-item">
@@ -131,7 +137,7 @@
         <div class="card-header">
           <strong>Recent Activity</strong>
         </div>
-        <div class="card-body">
+        <div class="card-body fixed-height">
           <ul class="list-group">
             {% for activity in recent_activity %}
               <li class="list-group-item">
