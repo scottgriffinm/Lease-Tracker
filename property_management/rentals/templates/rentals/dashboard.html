@@ -7,6 +7,7 @@
     <meta charset="utf-8">
     <title>Rental Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -336,7 +337,10 @@
     </div>
 </div>
 
-
+<a href="https://github.com/scottgriffinm/Lease-Tracker" target="_blank" 
+   style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-size: 40px; color: #000;">
+    <i class="fab fa-github"></i>
+</a>
     </div>
 
     <!-- JavaScript Libraries -->
@@ -592,7 +596,7 @@
     labels: ['Vacant', 'Pending', 'Occupied'],
     datasets: [{
         data: [{{ vacant_no_apps_count }}, {{ vacant_with_apps_count }}, {{ occupied_count }}],
-        backgroundColor: ['#FF6384', '#FFCE56', '#36A2EB']
+        backgroundColor: [ '#FFA94D', '#6C5CE7', '#00B894'] // Purple, Teal, and Soft Yellow
     }]
 },
         options: {
@@ -620,7 +624,7 @@ var leaseChart = new Chart(ctx2, {
         labels: expiringDates,
         datasets: [{
             data: expiringCounts,
-            backgroundColor: '#FFCE56'
+            backgroundColor: '#FFA94D'
         }]
     },
     options: {
