@@ -38,7 +38,6 @@
             min-height: 300px;
             overflow-y: auto;
         }
-
         .fixed-height-2 {
             max-height: 267px;
             min-height: 267px;
@@ -54,55 +53,50 @@
 
         <!-- Row 1 -->
         <div class="row">
-            <!-- Outstanding Balances -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <strong>Outstanding Balances</strong>
-                        <span>Total: ${{ total_outstanding|floatformat:0|intcomma }}</span>
-                    </div>
-                    <div class="card-body p-0">
-                        <!-- Table Header -->
-                        <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;"
-                            id="balancesTableHead">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th onclick="sortTable(0)" class="pl-2" style="width: 35%;">Name</th>
-                                    <th onclick="sortTable(1)" style="width: 35%;">Unit</th>
-                                    <th onclick="sortTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days
-                                    </th>
-                                    <th onclick="sortTable(3)" class="pr-2" style="width: 15%; text-align: right;">
-                                        Amount</th>
-                                </tr>
-                            </thead>
-                        </table>
+           <!-- Outstanding Balances -->
+<div class="col-md-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Outstanding Balances</strong>
+            <span>Total: ${{ total_outstanding|floatformat:0|intcomma }}</span>
+        </div>
+        <div class="card-body p-0">
+            <!-- Table Header -->
+            <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTableHead">
+                <thead class="thead-light">
+                    <tr>
+                        <th onclick="sortTable(0)" class="pl-2" style="width: 35%;">Name</th>
+                        <th onclick="sortTable(1)" style="width: 30%;">Unit</th>
+                        <th onclick="sortTable(2)" class="pr-4" style="width: 15%; text-align: right;">Days</th>
+                        <th onclick="sortTable(3)" class="pr-2" style="width: 15%; text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+            </table>
 
-                        <!-- Scrollable Table Body -->
-                        <div class="fixed-height-2" style="overflow-y: auto; overflow-x: hidden;">
-                            <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;"
-                                id="balancesTable">
-                                <tbody>
-                                    {% for lease in outstanding_balances %}
-                                    <tr>
-                                        <td class="pl-2">{{ lease.tenant.name }}</td>
-                                        <td>{{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
-                                        <td class="text-right pr-4">{{ lease.outstanding_balance_age_days }}</td>
-                                        <td class="text-right pr-2">${{ lease.outstanding_balance|floatformat:0|intcomma
-                                            }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <!-- Scrollable Table Body -->
+            <div class="fixed-height-2" style="overflow-y: auto; overflow-x: hidden;">
+                <table class="table table-sm table-striped mb-0 text-nowrap" style="font-size: 0.85rem;" id="balancesTable">
+                    <tbody>
+                        {% for lease in outstanding_balances %}
+                        <tr>
+                            <td class="pl-2">{{ lease.tenant.name }}</td>
+                            <td class="pr-4"> {{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                            <td class="text-right pr-3">{{ lease.outstanding_balance_age_days }}</td>
+                            <td class="text-right pr-3">${{ lease.outstanding_balance|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Rental Listings (Vacant vs Occupied) -->
+            <!-- Listings (Vacant vs Occupied) -->
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <strong>Rental Listings</strong>
+                        <strong>Listings</strong>
                     </div>
                     <div class="card-body fixed-height text-center">
                         <div class="chart-container">
@@ -116,11 +110,11 @@
                 </div>
             </div>
 
-            <!-- Rental Applications -->
+            <!-- Applications -->
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <strong>Rental Applications</strong>
+                        <strong>Applications</strong>
                     </div>
                     <div class="card-body fixed-height">
                         <ul class="list-group">
@@ -207,7 +201,7 @@
     <!-- Outstanding Balances Table Sorting -->
     <script>
         let sortDirection = {};
-
+    
         function sortTable(colIndex) {
             const table = document.getElementById("balancesTable");
             const headerTable = document.getElementById("balancesTableHead");
@@ -215,16 +209,16 @@
             const tbody = table.tBodies[0];
             const rows = Array.from(tbody.rows);
             const isNumeric = colIndex >= 2;
-
+    
             // Toggle sort direction
             sortDirection[colIndex] = !sortDirection[colIndex];
             const direction = sortDirection[colIndex] ? 1 : -1;
-
+    
             // Sort rows
             rows.sort((a, b) => {
                 let aText = a.cells[colIndex].textContent.trim();
                 let bText = b.cells[colIndex].textContent.trim();
-
+    
                 if (isNumeric) {
                     aText = aText.replace(/[^\d.-]/g, '');
                     bText = bText.replace(/[^\d.-]/g, '');
@@ -233,16 +227,16 @@
                     return direction * aText.localeCompare(bText);
                 }
             });
-
+    
             // Re-render rows
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
-
+    
             // Clear all header arrows
             headers.forEach(th => {
                 th.textContent = th.textContent.replace(/[\s▲▼]+$/, '');
             });
-
+    
             // Add arrow to active column
             const arrow = direction === 1 ? ' ▲' : ' ▼';
             headers[colIndex].textContent = headers[colIndex].textContent.trim() + arrow;
