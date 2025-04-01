@@ -8,7 +8,8 @@
     <title>Rental Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
         body {
             padding: 20px;
@@ -63,6 +64,51 @@
         .custom-stripe {
             background-color: rgba(0, 0, 0, 0.05) !important;
         }
+        /* Custom styling for DataTables controls */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            float: left !important;
+            text-align: left !important;
+            margin-left: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_length {
+            float: left !important;
+            margin-left: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 1rem;
+        }
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 1.5rem;
+            margin-left: 1rem; 
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 1rem;
+            margin-bottom: 1rem; 
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 1rem;
+        }
+        /* Kill DataTables default sorting arrows */
+        table.dataTable thead th.sorting::before,
+        table.dataTable thead th.sorting::after,
+        table.dataTable thead th.sorting_asc::before,
+        table.dataTable thead th.sorting_asc::after,
+        table.dataTable thead th.sorting_desc::before,
+        table.dataTable thead th.sorting_desc::after {
+            display: none !important;
+            content: none !important;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 
@@ -115,9 +161,11 @@
             <!-- Listings (Vacant vs Occupied) -->
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
-                        <strong>Listings</strong>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                         <strong>Listings</strong>
+                        <span>Total: {{ all_units|length|intcomma }}</span>
                     </div>
+                   
                     <div class="card-body fixed-height text-center">
                         <div class="chart-container">
                             <canvas id="rentalChart"></canvas>
@@ -258,13 +306,44 @@
             </div>
         </div>
 
+ <!-- All Units Table  -->
+<div class="card mt-4">
+    <div class="card-body p-0">
+        <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
+            <thead class="thead-light">
+                <tr>
+                    <th id="unitHeader0">Property</th>
+                    <th id="unitHeader1">Unit</th>
+                    <th id="unitHeader2">Address</th>
+                    <th id="unitHeader3" class="text-right">Rent</th>
+                    <th id="unitHeader4">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in all_units %}
+                <tr>
+                    <td>{{ unit.property.name }}</td>
+                    <td>#{{ unit.number }}</td>
+                    <td>{{ unit.property.address }}</td>
+                    <td class="text-right">${{ unit.monthly_rent|floatformat:0|intcomma }}</td>
+                    <td>{{ unit.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
     </div>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <!-- Custom Greeting -->
+<!-- Custom Greeting -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const now = new Date();
@@ -285,6 +364,45 @@
             }
         });
     </script>
+
+<script>
+    $(document).ready(function () {
+        const table = $('#unitsDataTable').DataTable({
+            pageLength: 25,
+            lengthMenu: [10, 25, 50, 100],
+            order: [],
+            columnDefs: [
+                { targets: 3, className: 'text-right' }
+            ],
+            dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
+        });
+
+        // Header elements
+        const headers = [
+            document.getElementById("unitHeader0"),
+            document.getElementById("unitHeader1"),
+            document.getElementById("unitHeader2"),
+            document.getElementById("unitHeader3"),
+            document.getElementById("unitHeader4")
+        ];
+
+        // Original header text for each column
+        const originalText = headers.map(h => h.textContent.replace(/[\s▲▼]+$/, '').trim());
+
+        // Listen to DataTables sort events
+        table.on('order.dt', function () {
+            const order = table.order(); // [[colIndex, 'asc' or 'desc']]
+            const [colIndex, direction] = order[0];
+
+            headers.forEach((th, idx) => {
+                th.textContent = originalText[idx]; // Reset text
+            });
+
+            const arrow = direction === 'asc' ? ' ▲' : ' ▼';
+            headers[colIndex].textContent = originalText[colIndex] + arrow;
+        });
+    });
+</script>
 
     <!-- Table Sorting: Applications (also selector button handling) -->
     <script>

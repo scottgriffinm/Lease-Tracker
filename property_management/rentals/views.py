@@ -83,6 +83,18 @@ def dashboard(request):
         {'message': entry['message'], 'timestamp': entry['timestamp']} for entry in recent_activity
     ]
 
+    # All units + add .status field to each
+    all_units = Unit.objects.select_related('property').all()
+    pending_unit_ids = set(pending_units)  # Reuse the earlier query
+
+    for unit in all_units:
+        if unit.is_occupied:
+            unit.status = "Occupied"
+        elif unit.id in pending_unit_ids:
+            unit.status = "Pending"
+        else:
+            unit.status = "Vacant"
+
     context = {
         'outstanding_balances': outstanding_leases,
         'total_outstanding': total_outstanding,
@@ -95,6 +107,7 @@ def dashboard(request):
         'expiring_leases_distribution': json.dumps(expiring_distribution),
         'tasks': tasks,
         'recent_activity': recent_activity_messages,
+        'all_units': all_units,
     }
 
     return render(request, 'rentals/dashboard.html', context)
