@@ -3,73 +3,134 @@
 <html>
 
 <head>
-    <title>People</title>
+    <title>People (Tenants)</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
+        body {
+            padding: 2rem;
+            background-color: #f8f9fa;
+            margin-left: 200px;
+        }
+
         a {
             color: black;
         }
+
         a:hover {
             color: black;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100%;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 1rem;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            z-index: 1050;
+            overflow-y: auto;
+        }
+
+        #sidebar .btn {
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            float: left !important;
+            text-align: left !important;
+            margin-left: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_length {
+            float: left !important;
+            margin-left: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 1.5rem;
+            margin-left: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 1rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 
-<body class="p-4 bg-light">
-    <div class="container-fluid">
-        <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
-       
-        <h2 class="mb-4">People (Tenants)</h2>
+<body class="bg-light">
 
-        {% for tenant in tenants %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <strong>{{ tenant.name }}</strong> — {{ tenant.email }}{% if tenant.phone %} | {{ tenant.phone }}{%
-                endif %}
-                <span class="float-right">Outstanding: ${{ tenant.outstanding_balance|floatformat:2|intcomma }}</span>
-            </div>
-            <div class="card-body">
-                {% for lease in tenant.lease_set.all %}
-                <h6>Lease: {{ lease.unit.property.name }} #{{ lease.unit.number }}</h6>
-                <p>
-                    <strong>Dates:</strong> {{ lease.start_date }} to {{ lease.end_date }}<br>
-                    <strong>Monthly Rent:</strong> ${{ lease.monthly_rent }}<br>
-                    <strong>Outstanding:</strong> ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{ lease.outstanding_balance_age_days }} days)
-                </p>
-
-                <details>
-                    <summary>Payments ({{ lease.payments.count }})</summary>
-                    <ul>
-                        {% for payment in lease.payments.all %}
-                        <li>${{ payment.amount }} on {{ payment.date }}</li>
-                        {% empty %}
-                        <li>No payments</li>
-                        {% endfor %}
-                    </ul>
-                </details>
-
-                <details>
-                    <summary>Charges ({{ lease.charges.count }})</summary>
-                    <ul>
-                        {% for charge in lease.charges.all %}
-                        <li>${{ charge.amount }} due on {{ charge.due_date }} — {{ charge.description }}</li>
-                        {% empty %}
-                        <li>No charges</li>
-                        {% endfor %}
-                    </ul>
-                </details>
-                <hr>
-                {% empty %}
-                <p>No leases</p>
-                {% endfor %}
-            </div>
-        </div>
-        {% empty %}
-        <p>No tenants found.</p>
-        {% endfor %}
-
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
+        <a href="#" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+        <a href="{% url 'dashboard' %}#unitsDataTableTop" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+        <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
+        <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
     </div>
 
-</body>
+    <div class="container-fluid">
+        <h2 class="mb-4">People</h2>
 
+        <div class="card">
+            <div class="card-body p-0">
+                <table id="tenantsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Unit</th>
+                            <th>Lease Dates</th>
+                            <th class="text-right">Rent</th>
+                            <th class="text-right">Outstanding</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tenantsDataTable').DataTable({
+                ajax: {
+                    url: '{% url "tenants_api" %}',
+                    dataSrc: 'data'
+                },
+                columns: [
+                    { data: 'name' },
+                    { data: 'email' },
+                    { data: 'phone' },
+                    { data: 'unit' },
+                    { data: 'lease_dates' },
+                    { data: 'rent', className: 'text-right' },
+                    { data: 'outstanding', className: 'text-right' }
+                ],
+                pageLength: 25,
+                lengthMenu: [10, 25, 50, 100],
+                order: [],
+                dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
+            });
+        });
+    </script>
+</body>
 </html>

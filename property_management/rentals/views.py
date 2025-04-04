@@ -149,6 +149,40 @@ def units_api(request):
     return JsonResponse({'data': unit_data})
 
 # Get people data
+def tenants_api(request):
+    tenants = Tenant.objects.prefetch_related(
+        Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property'))
+    )
+
+    tenant_data = []
+    for tenant in tenants:
+        if tenant.lease_set.exists():
+            for lease in tenant.lease_set.all():
+                tenant_data.append({
+                    'name': f'<a href="/people/{tenant.id}/">{tenant.name}</a>',
+                    'email': tenant.email,
+                    'phone': tenant.phone,
+                    'unit': f'<a href="/units/{lease.unit.id}/">{lease.unit.property.name} #{lease.unit.number}</a>',
+                    'lease_dates': f'{lease.start_date} to {lease.end_date}',
+                    'rent': f"${int(lease.monthly_rent):,}",
+                    'outstanding': f"${lease.outstanding_balance:,.2f}" + (
+                        f" ({lease.outstanding_balance_age_days}d)" if lease.outstanding_balance_age_days else ""
+                    ),
+                })
+        else:
+            tenant_data.append({
+                'name': f'<a href="/people/{tenant.id}/">{tenant.name}</a>',
+                'email': tenant.email,
+                'phone': tenant.phone,
+                'unit': '—',
+                'lease_dates': '—',
+                'rent': '—',
+                'outstanding': f"${tenant.outstanding_balance:,.2f}",
+            })
+
+    return JsonResponse({'data': tenant_data})
+
+# Get people data (old)
 def people(request):
     tenants = Tenant.objects.prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property').prefetch_related('payments', 'charges'))

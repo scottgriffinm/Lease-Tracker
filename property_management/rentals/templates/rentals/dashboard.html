@@ -137,7 +137,7 @@
                 overflow-y: auto;
             }
 
-            /* Sidebar buttons styled like Bootstrap defaults */
+            /* Sidebar buttons */
             #sidebar .btn {
             border-radius: 4px;
             margin-bottom: 0.5rem;
@@ -350,7 +350,7 @@
         </div>
 
         <!-- All Units  -->
-        <div class="card mt-4">
+        <div id="unitsDataTableTop" class="card mt-4">
             <div class="card-body p-0">
                 <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
                     <thead class="thead-light">
@@ -378,10 +378,10 @@
     <!-- Sidebar -->
     <div id="sidebar">
         <a href="#" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</a>
+        <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+        <a href="#unitsDataTableTop" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+        <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
+        <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
     </div>
 
     <!-- JS Libraries -->

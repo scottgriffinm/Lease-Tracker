@@ -5,47 +5,91 @@
 <head>
     <title>Application Detail</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         a { color: black; }
         a:hover { color: black; }
-        body { padding: 2rem; }
+        body {
+            padding: 2rem;
+            background-color: #f8f9fa;
+            margin-left: 200px; /* space for sidebar */
+        }
         .card { border-radius: 0.75rem; }
         .section-title { font-weight: bold; font-size: 1.25rem; }
         .btn-light {
-        background-color: #fff;
-    }
+            background-color: #fff;
+        }
         .btn-light:hover {
-        background-color: #e9ecef;
-    }
+            background-color: #e9ecef;
+        }
+        .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .custom-modal.show {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            border-radius: 1rem;
+        }
 
-    .custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 1050;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    justify-content: center;
-    align-items: center;
-}
+        /* Sidebar */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100%;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 1rem;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            z-index: 1050;
+            overflow-y: auto;
+        }
 
-.custom-modal.show {
-    display: flex;
-}
-
-.modal-card {
-    width: 100%;
-    max-width: 420px;
-    border-radius: 1rem;
-}
+            /* Sidebar buttons */
+            #sidebar .btn {
+                background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            text-align: left;
+            }
     </style>
 </head>
 <body class="bg-light">
-<div class="container-fluid">
-    <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
 
+<!-- Sidebar -->
+<div id="sidebar">
+    <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
+    <a href="#" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+    <a href="#" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+    <a href="#" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
+    <a href="#" class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</a>
+</div>
+
+   <!-- Sidebar -->
+   <div id="sidebar">
+    <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
+    <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+    <a href="{% url 'dashboard' %}#unitsDataTableTop" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+    <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
+    <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
+    </div>
+
+<!-- Main Content -->
+<div class="container-fluid">
     <h2 class="mt-3 mb-4">Application Details</h2>
 
     <div class="mb-4">
@@ -58,7 +102,7 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <p class=" mb-0">Applicant Information</p>
+                    <p class="mb-0">Applicant Information</p>
                 </div>
                 <div class="card-body">
                     <p><strong>Name:</strong> {{ application.applicant.name }}</p>
@@ -66,17 +110,17 @@
                     <p><strong>Phone:</strong> {{ application.applicant.phone }}</p>
                     <p><strong>Date of Birth:</strong> {{ application.applicant.date_of_birth }}</p>
                     <p><strong>Credit Score:</strong> {{ application.applicant.credit_score }}</p>
-                    <p><strong>Employment Status:</strong> 
+                    <p><strong>Employment Status:</strong>
                         {% if application.applicant.employment_status %}Employed{% else %}Unemployed{% endif %}
                     </p>
-                    <p><strong>Monthly Income:</strong> 
+                    <p><strong>Monthly Income:</strong>
                         {% if application.applicant.monthly_income %}
                             ${{ application.applicant.monthly_income|floatformat:0|intcomma }}
                         {% else %}
                             N/A
                         {% endif %}
                     </p>
-                    <p><strong>Background Check:</strong> 
+                    <p><strong>Background Check:</strong>
                         {% if application.applicant.background_check_passed %}Passed{% else %}Failed{% endif %}
                     </p>
                     <p><strong>Emergency Contact:</strong> {{ application.applicant.emergency_contact_name }} ({{ application.applicant.emergency_contact_phone }})</p>
@@ -88,14 +132,14 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <p class=" mb-0">Unit Information</p>
+                    <p class="mb-0">Unit Information</p>
                 </div>
                 <div class="card-body">
                     <p><strong>Unit:</strong> {{ application.unit.name }} (#{{ application.unit.number }})</p>
                     <p><strong>Property:</strong> {{ application.unit.property.name }}</p>
                     <p><strong>Address:</strong> {{ application.unit.property.address }}</p>
                     <p><strong>Monthly Rent:</strong> ${{ application.unit.monthly_rent|floatformat:0|intcomma }}</p>
-                    <p><strong>Status:</strong> 
+                    <p><strong>Status:</strong>
                         {% if application.unit.is_occupied %}Occupied{% else %}Vacant{% endif %}
                     </p>
                 </div>
@@ -117,7 +161,6 @@
         </button>
     </div>
     {% endif %}
-
 </div>
 
 <!-- Confirmation Modal -->
@@ -175,7 +218,6 @@
         });
     }
 
-    // Optional: Close modal on background click
     document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('confirmModal');
         modal.addEventListener('click', (e) => {
