@@ -147,8 +147,8 @@
                                     {% for lease in outstanding_balances %}
                                     <tr>
                                         <td class="pl-2"><a href="{% url 'person_detail' tenant_id=lease.tenant.id %}">
-        {{ lease.tenant.name }}
-    </a></td>
+                                            {{ lease.tenant.name }}
+                                        </a></td>
                                         <td class="pr-4">
                                             <a href="{% url 'unit_detail' unit_id=lease.unit.id %}">
                                             {{ lease.unit.property.name }} #{{ lease.unit.number }}
@@ -322,28 +322,15 @@
                 <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
                     <thead class="thead-light">
                         <tr>
-                            <th id="unitHeader0">Property</th>
-                            <th id="unitHeader1">Unit</th>
-                            <th id="unitHeader2">Address</th>
-                            <th id="unitHeader3">Tenant</th>
-                            <th id="unitHeader4" class="text-right">Rent</th>
-                            <th id="unitHeader5">Status</th>
+                            <th>Property</th>
+                            <th>Unit</th>
+                            <th>Address</th>
+                            <th>Tenant</th>
+                            <th class="text-right">Rent</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for unit in all_units %}
-                        <tr>
-                            <td>{{ unit.property.name }}</td>
-                            <td>
-                                <a href="{% url 'unit_detail' unit_id=unit.id %}">#{{ unit.number }}</a>
-                              </td>
-                            <td>{{ unit.property.address }}</td>
-                            <td>{{ unit.tenant_name }}</td>
-                            <td class="text-right">${{ unit.monthly_rent|floatformat:0|intcomma }}</td>
-                            <td>{{ unit.status }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -356,10 +343,10 @@
     </div>
 
     <!-- JS Libraries -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+    x
     <!-- Custom Greeting -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -387,40 +374,23 @@
     <!-- All Units Table -->
     <script>
         $(document).ready(function () {
-            const table = $('#unitsDataTable').DataTable({
+            $('#unitsDataTable').DataTable({
+                ajax: {
+                    url: '{% url "units_api" %}',
+                    dataSrc: 'data'
+                },
+                columns: [
+                    { data: 'property' },
+                    { data: 'unit' },
+                    { data: 'address' },
+                    { data: 'tenant' },
+                    { data: 'rent', className: 'text-right' },
+                    { data: 'status' }
+                ],
                 pageLength: 25,
                 lengthMenu: [10, 25, 50, 100],
                 order: [],
-                columnDefs: [
-                    { targets: 3, className: 'text-right' }
-                ],
                 dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
-            });
-
-            // Header elements
-            const headers = [
-                document.getElementById("unitHeader0"),
-                document.getElementById("unitHeader1"),
-                document.getElementById("unitHeader2"),
-                document.getElementById("unitHeader3"),
-                document.getElementById("unitHeader4"),
-                document.getElementById("unitHeader5")
-            ];
-
-            // Original header text for each column
-            const originalText = headers.map(h => h.textContent.replace(/[\s▲▼]+$/, '').trim());
-
-            // Listen to DataTables sort events
-            table.on('order.dt', function () {
-                const order = table.order();
-                const [colIndex, direction] = order[0];
-
-                headers.forEach((th, idx) => {
-                    th.textContent = originalText[idx]; // Reset text
-                });
-
-                const arrow = direction === 'asc' ? ' ▲' : ' ▼';
-                headers[colIndex].textContent = originalText[colIndex] + arrow;
             });
         });
     </script>
@@ -652,13 +622,13 @@
                     }
                 },
                 scales: {
-                    yAxes: [{
-                        ticks: {
-                            stepSize: 1,
-                            beginAtZero: true
-                        }
-                    }]
-                }
+    y: {
+        ticks: {
+            stepSize: 1,
+            beginAtZero: true
+        }
+    }
+}
             }
         });
     </script>

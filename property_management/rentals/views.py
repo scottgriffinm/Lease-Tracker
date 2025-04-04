@@ -1,11 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
+from django.http import JsonResponse
+from django.core.serializers import serialize
 from datetime import timedelta, datetime
 from collections import Counter
 from .models import Property, Unit, Tenant, Lease, Application, Payment
 from django.db.models import Prefetch
 import json
 
+# Get dashboard data
 def dashboard(request):
     now = timezone.now()
     today = now.date()
@@ -113,7 +116,36 @@ def dashboard(request):
 
     return render(request, 'rentals/dashboard.html', context)
 
+# Get all units data
+def units_api(request):
+    units = Unit.objects.select_related('property').prefetch_related(
+        Prefetch('lease_set', queryset=Lease.objects.filter(end_date__gte=timezone.now().date()).select_related('tenant'))
+    )
 
+    unit_data = []
+    for unit in units:
+        active_lease = next(iter(unit.lease_set.all()), None)
+        tenant_name = active_lease.tenant.name if active_lease and active_lease.tenant else "None"
+
+        if unit.is_occupied:
+            status = "Occupied"
+        elif Application.objects.filter(unit=unit, status='pending').exists():
+            status = "Pending"
+        else:
+            status = "Vacant"
+
+        unit_data.append({
+            'property': unit.property.name,
+            'unit': f'<a href="/units/{unit.id}/">#{unit.number}</a>',
+            'address': unit.property.address,
+            'tenant': tenant_name,
+            'rent': f"${int(unit.monthly_rent):,}",
+            'status': status
+        })
+
+    return JsonResponse({'data': unit_data})
+
+# Get all people data
 def people(request):
     tenants = Tenant.objects.prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property').prefetch_related('payments', 'charges'))
@@ -123,7 +155,7 @@ def people(request):
     }
     return render(request, 'rentals/people.html', context)
 
-
+# Get one person's data
 def person_detail(request, tenant_id):
     tenant = get_object_or_404(
         Tenant.objects.prefetch_related(
@@ -160,6 +192,7 @@ def person_detail(request, tenant_id):
     }
     return render(request, 'rentals/person_detail.html', context)
 
+# Get one unit's data
 def unit_detail(request, unit_id):
     unit = get_object_or_404(
         Unit.objects.select_related('property').prefetch_related(
@@ -189,3 +222,4 @@ def unit_detail(request, unit_id):
         'unit': unit
     }
     return render(request, 'rentals/unit_detail.html', context)
+
