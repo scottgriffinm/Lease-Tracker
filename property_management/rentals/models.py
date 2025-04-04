@@ -70,7 +70,6 @@ class Charge(models.Model):
     def __str__(self):
         return f"Charge of ${self.amount} on {self.due_date} for {self.lease}"
 
-
 class Application(models.Model):
     applicant_name = models.CharField(max_length=100)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)

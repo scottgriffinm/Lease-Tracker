@@ -205,7 +205,7 @@ def unit_detail(request, unit_id):
         pk=unit_id
     )
 
-    # Optionally build ledgers for each lease
+    # Build ledgers for each lease
     for lease in unit.lease_set.all():
         transactions = list(lease.charges.all()) + list(lease.payments.all())
         transactions.sort(key=lambda x: x.date if hasattr(x, 'date') else x.due_date, reverse=True)
@@ -219,8 +219,13 @@ def unit_detail(request, unit_id):
             for t in transactions
         ]
 
+    # Collect any open applications
+    applications = Application.objects.filter(unit=unit).order_by('-submitted_on')
+
     context = {
-        'unit': unit
+        'unit': unit,
+        'applications': applications  # Add this line
     }
+
     return render(request, 'rentals/unit_detail.html', context)
 
