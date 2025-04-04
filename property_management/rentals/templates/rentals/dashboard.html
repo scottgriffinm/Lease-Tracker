@@ -19,7 +19,7 @@
             }
 
             th {
-                /* Disable text selecting */
+                /* Disable text selection */
                 user-select: none;
                 -webkit-user-select: none;
                 -moz-user-select: none;
@@ -55,13 +55,11 @@
                 overflow-y: auto;
             }
             .fixed-height-applications-table-body {
-                max-height: 214px;
-                min-height: 214px;
+                max-height: 216px;
+                min-height: 216px;
                 overflow-y: auto;
             }
-            #applicationsTableBody tr:hover {
-                background-color: rgba(0, 0, 0, 0.18) !important;
-            }
+           
             .scrollable-table-wrapper {
                 max-height: 267px;
                 overflow-y: auto;
@@ -119,6 +117,10 @@
                 background: none !important;
                 border: none !important;
                 box-shadow: none !important;
+            }
+            /* Hover coloring on application table rows */
+            #applicationsTableBody tr:hover {
+                background-color: rgba(0, 0, 0, 0.18) !important;
             }
         </style>
     </head>
@@ -203,9 +205,9 @@
                     <div class="card-body p-0">
                         <!-- Filter Buttons -->
                         <div class="btn-group d-flex m-2" role="group">
-                        <button class="btn btn-light w-100" id="btn-pending" onclick="filterApplications('pending')">To Review ({{ pending_app_count }})</button>
-                        <button class="btn btn-light w-100" id="btn-approved" onclick="filterApplications('approved')">Accepted</button>
-                        <button class="btn btn-light w-100" id="btn-rejected" onclick="filterApplications('rejected')">Rejected</button>
+                        <button class="btn btn-light w-100" style="font-size: 0.9rem;" id="btn-pending" onclick="filterApplications('pending')">To Review ({{ pending_app_count }})</button>
+                        <button class="btn btn-light w-50" style="font-size: 0.9rem;" id="btn-approved" onclick="filterApplications('approved')">Accepted</button>
+                        <button class="btn btn-light w-50" style="font-size: 0.9rem;" id="btn-rejected" onclick="filterApplications('rejected')">Rejected</button>
                         </div>
                         <!-- Table -->
                         <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTable">
@@ -223,7 +225,7 @@
                                 {% for app in rental_applications %}
                                     
                                 <tr data-status="{{ app.status }}" data-href="{% url 'application_detail' app.id %}" style="cursor: pointer;">
-                                    <td style="padding-left: 0.75rem;">{{ app.applicant_name }}</td>
+                                    <td style="padding-left: 0.75rem;">{{ app.applicant.name }}</td>
                                     <td>{{ app.unit.property.name }} #{{ app.unit.number }}</td>
                                     <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">
                                         {{ app.submitted_on|date:"M j, Y" }}

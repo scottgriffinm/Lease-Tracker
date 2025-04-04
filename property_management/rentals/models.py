@@ -20,9 +20,24 @@ class Unit(models.Model):
         return f"{self.name} ({self.property.name if self.property else 'No Property'})"
 
 class Tenant(models.Model):
+    # Basic Info
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+
+    # Financial & Application Info
+    credit_score = models.IntegerField(null=True, blank=True)
+    employment_status = models.BooleanField(default=False)
+    monthly_income = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    background_check_passed = models.BooleanField(default=False)
+
+    # Emergency Contact
+    emergency_contact_name = models.CharField(max_length=100, blank=True)
+    emergency_contact_phone = models.CharField(max_length=20, blank=True)
+
+    # Metadata
+    notes = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
@@ -71,7 +86,7 @@ class Charge(models.Model):
         return f"Charge of ${self.amount} on {self.due_date} for {self.lease}"
 
 class Application(models.Model):
-    applicant_name = models.CharField(max_length=100)
+    applicant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     submitted_on = models.DateTimeField(default=timezone.now)
 

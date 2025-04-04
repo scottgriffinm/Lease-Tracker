@@ -1,55 +1,189 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Application Detail</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body {
-            padding: 2rem;
-        }
+        a { color: black; }
+        a:hover { color: black; }
+        body { padding: 2rem; }
+        .card { border-radius: 0.75rem; }
+        .section-title { font-weight: bold; font-size: 1.25rem; }
+        .btn-light {
+        background-color: #fff;
+    }
+        .btn-light:hover {
+        background-color: #e9ecef;
+    }
+
+    .custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-modal.show {
+    display: flex;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 1rem;
+}
     </style>
 </head>
-<body>
-    <div class="container">
-        <h3>Application Details</h3>
-        <p><strong>Applicant:</strong> {{ application.applicant_name }}</p>
-        <p><strong>Unit:</strong> {{ application.unit.property.name }} #{{ application.unit.number }}</p>
+<body class="bg-light">
+<div class="container-fluid">
+    <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+
+    <h2 class="mt-3 mb-4">Application Details</h2>
+
+    <div class="mb-4">
         <p><strong>Status:</strong> <span id="status-display">{{ application.get_status_display }}</span></p>
         <p><strong>Submitted on:</strong> {{ application.submitted_on|date:"M j, Y H:i" }}</p>
-
-        {% if application.status == "pending" %}
-            <div class="mt-4">
-                <button class="btn btn-success" onclick="confirmAction('approved')">Accept</button>
-                <button class="btn btn-danger" onclick="confirmAction('rejected')">Reject</button>
-            </div>
-        {% endif %}
     </div>
 
-    <script>
-        function confirmAction(action) {
-            const readable = action === 'approved' ? 'approve' : 'reject';
-            if (confirm(`Are you sure you want to ${readable} this application?`)) {
-                fetch("{% url 'update_application_status' application.id %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    },
-                    body: `status=${action}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`Application ${data.new_status}.`);
-                        document.getElementById('status-display').textContent = data.new_status;
-                        location.reload();
-                    } else {
-                        alert("Error: " + data.error);
-                    }
-                });
+    <div class="row">
+        <!-- Applicant Info -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <p class=" mb-0">Applicant Information</p>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ application.applicant.name }}</p>
+                    <p><strong>Email:</strong> {{ application.applicant.email }}</p>
+                    <p><strong>Phone:</strong> {{ application.applicant.phone }}</p>
+                    <p><strong>Date of Birth:</strong> {{ application.applicant.date_of_birth }}</p>
+                    <p><strong>Credit Score:</strong> {{ application.applicant.credit_score }}</p>
+                    <p><strong>Employment Status:</strong> 
+                        {% if application.applicant.employment_status %}Employed{% else %}Unemployed{% endif %}
+                    </p>
+                    <p><strong>Monthly Income:</strong> 
+                        {% if application.applicant.monthly_income %}
+                            ${{ application.applicant.monthly_income|floatformat:0|intcomma }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                    <p><strong>Background Check:</strong> 
+                        {% if application.applicant.background_check_passed %}Passed{% else %}Failed{% endif %}
+                    </p>
+                    <p><strong>Emergency Contact:</strong> {{ application.applicant.emergency_contact_name }} ({{ application.applicant.emergency_contact_phone }})</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unit Info -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <p class=" mb-0">Unit Information</p>
+                </div>
+                <div class="card-body">
+                    <p><strong>Unit:</strong> {{ application.unit.name }} (#{{ application.unit.number }})</p>
+                    <p><strong>Property:</strong> {{ application.unit.property.name }}</p>
+                    <p><strong>Address:</strong> {{ application.unit.property.address }}</p>
+                    <p><strong>Monthly Rent:</strong> ${{ application.unit.monthly_rent|floatformat:0|intcomma }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if application.unit.is_occupied %}Occupied{% else %}Vacant{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if application.status == "pending" %}
+    <div class="mt-4 d-flex justify-content-center">
+        <button class="btn btn-light border mr-3 py-2"
+                style="font-size: 0.9rem; min-width: 140px;"
+                onclick="confirmAction('approved')">
+            Accept
+        </button>
+        <button class="btn btn-light border py-2"
+                style="font-size: 0.9rem; min-width: 140px;"
+                onclick="confirmAction('rejected')">
+            Reject
+        </button>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="custom-modal">
+    <div class="modal-card card shadow">
+        <div class="card-header">
+            <p class="mb-0">Confirm</p>
+        </div>
+        <div class="card-body text-center">
+            <p class="mb-3" id="modalMessage">Are you sure?</p>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-light border mr-3 px-4 py-2" style="min-width: 120px;" onclick="submitAction()">Confirm</button>
+                <button class="btn btn-light border px-4 py-2" style="min-width: 120px;" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let actionToSubmit = "";
+
+    function confirmAction(action) {
+        actionToSubmit = action;
+        const readable = action === 'approved' ? 'approve' : 'reject';
+        document.getElementById('modalMessage').textContent = `Are you sure you want to ${readable} this application?`;
+
+        const modal = document.getElementById('confirmModal');
+        modal.classList.add('show');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.remove('show');
+    }
+
+    function submitAction() {
+        const action = actionToSubmit;
+        fetch("{% url 'update_application_status' application.id %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: `status=${action}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            closeModal();
+            if (data.success) {
+                document.getElementById('status-display').textContent = data.new_status;
+                location.reload();
+            } else {
+                alert("Error: " + data.error);
             }
-        }
-    </script>
+        });
+    }
+
+    // Optional: Close modal on background click
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('confirmModal');
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    });
+</script>
 </body>
 </html>

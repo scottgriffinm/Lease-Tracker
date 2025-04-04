@@ -9,7 +9,6 @@
         a {
             color: black;
         }
-
         a:hover {
             color: black;
         }
@@ -17,7 +16,9 @@
 </head>
 
 <body class="p-4 bg-light">
-    <div class="container">
+    <div class="container-fluid">
+        <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+       
         <h2 class="mb-4">People (Tenants)</h2>
 
         {% for tenant in tenants %}
@@ -33,8 +34,7 @@
                 <p>
                     <strong>Dates:</strong> {{ lease.start_date }} to {{ lease.end_date }}<br>
                     <strong>Monthly Rent:</strong> ${{ lease.monthly_rent }}<br>
-                    <strong>Outstanding:</strong> ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{
-                    lease.outstanding_balance_age_days }} days)
+                    <strong>Outstanding:</strong> ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{ lease.outstanding_balance_age_days }} days)
                 </p>
 
                 <details>

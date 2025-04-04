@@ -63,7 +63,7 @@ def dashboard(request):
     for app in recent_apps:
         recent_activity.append({
             'timestamp': app.submitted_on,
-            'message': f"Application from {app.applicant_name} for {app.unit.property.name} #{app.unit.number}"
+            'message': f"Application from {app.applicant.name} for {app.unit.property.name} #{app.unit.number}"
         })
 
     # Recent Lease expirations
@@ -239,7 +239,7 @@ def application_detail(request, application_id):
 # Update application status
 @require_POST
 def update_application_status(request, application_id):
-    app = get_object_or_404(Application, pk=application_id)
+    app = get_object_or_404(Application.objects.select_related('unit__property', 'applicant'), pk=application_id)
     new_status = request.POST.get('status')
     if new_status in [Application.STATUS_APPROVED, Application.STATUS_REJECTED]:
         app.status = new_status
