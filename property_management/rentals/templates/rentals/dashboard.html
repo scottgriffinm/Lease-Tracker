@@ -146,8 +146,14 @@
                                 <tbody>
                                     {% for lease in outstanding_balances %}
                                     <tr>
-                                        <td class="pl-2">{{ lease.tenant.name }}</td>
-                                        <td class="pr-4"> {{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                                        <td class="pl-2"><a href="{% url 'person_detail' tenant_id=lease.tenant.id %}">
+        {{ lease.tenant.name }}
+    </a></td>
+                                        <td class="pr-4">
+                                            <a href="{% url 'unit_detail' unit_id=lease.unit.id %}">
+                                            {{ lease.unit.property.name }} #{{ lease.unit.number }}
+                                            </a>
+                                        </td>
                                         <td class="text-right pr-3">{{ lease.outstanding_balance_age_days }}</td>
                                         <td class="text-right pr-3">${{ lease.outstanding_balance|floatformat:0|intcomma }}</td>
                                     </tr>
@@ -208,7 +214,11 @@
                                 {% for app in rental_applications %}
                                 <tr data-status="{{ app.status }}">
                                     <td style="padding-left: 0.75rem;">{{ app.applicant_name }}</td>
-                                    <td>{{ app.unit.property.name }} #{{ app.unit.number }}</td>
+                                    <td>
+                                        <a href="{% url 'unit_detail' unit_id=app.unit.id %}">
+                                          {{ app.unit.property.name }} #{{ app.unit.number }}
+                                        </a>
+                                      </td>
                                     <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">{{ app.submitted_on|date:"M j, Y" }}</td>
                                 </tr>
                                 {% endfor %}
@@ -249,8 +259,14 @@
                                 <tbody>
                                     {% for lease in expiring_leases %}
                                     <tr>
-                                        <td class="pl-2">{{ lease.tenant.name }}</td>
-                                        <td class="pr-5">{{ lease.unit.property.name }} #{{ lease.unit.number }}</td>
+                                        <td class="pl-2"><a href="{% url 'person_detail' tenant_id=lease.tenant.id %}">
+        {{ lease.tenant.name }}
+    </a></td>
+    <td class="pr-5">
+        <a href="{% url 'unit_detail' unit_id=lease.unit.id %}">
+          {{ lease.unit.property.name }} #{{ lease.unit.number }}
+        </a>
+      </td>
                                         <td class="pr-5">{{ lease.end_date|date:"n-j" }}</td>
                                     </tr>
                                     {% endfor %}
@@ -318,7 +334,9 @@
                         {% for unit in all_units %}
                         <tr>
                             <td>{{ unit.property.name }}</td>
-                            <td>#{{ unit.number }}</td>
+                            <td>
+                                <a href="{% url 'unit_detail' unit_id=unit.id %}">#{{ unit.number }}</a>
+                              </td>
                             <td>{{ unit.property.address }}</td>
                             <td>{{ unit.tenant_name }}</td>
                             <td class="text-right">${{ unit.monthly_rent|floatformat:0|intcomma }}</td>

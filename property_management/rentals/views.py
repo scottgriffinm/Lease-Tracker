@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from datetime import timedelta, datetime
 from collections import Counter
@@ -112,3 +112,80 @@ def dashboard(request):
     }
 
     return render(request, 'rentals/dashboard.html', context)
+
+
+def people(request):
+    tenants = Tenant.objects.prefetch_related(
+        Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property').prefetch_related('payments', 'charges'))
+    )
+    context = {
+        'tenants': tenants
+    }
+    return render(request, 'rentals/people.html', context)
+
+
+def person_detail(request, tenant_id):
+    tenant = get_object_or_404(
+        Tenant.objects.prefetch_related(
+            Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property').prefetch_related('payments', 'charges'))
+        ),
+        pk=tenant_id
+    )
+
+    # Prepare ledger for each lease
+    for lease in tenant.lease_set.all():
+        transactions = []
+
+        for charge in lease.charges.all():
+            transactions.append({
+                'type': 'Charge',
+                'amount': charge.amount,
+                'date': charge.due_date,
+                'description': charge.description or '',
+            })
+
+        for payment in lease.payments.all():
+            transactions.append({
+                'type': 'Payment',
+                'amount': payment.amount,
+                'date': payment.date,
+                'description': f'Payment received',
+            })
+
+        # Sort by date descending (most recent first)
+        lease.ledger = sorted(transactions, key=lambda x: x['date'], reverse=True)
+
+    context = {
+        'tenant': tenant
+    }
+    return render(request, 'rentals/person_detail.html', context)
+
+def unit_detail(request, unit_id):
+    unit = get_object_or_404(
+        Unit.objects.select_related('property').prefetch_related(
+            Prefetch(
+                'lease_set',
+                queryset=Lease.objects.select_related('tenant').prefetch_related('payments', 'charges')
+            )
+        ),
+        pk=unit_id
+    )
+
+    # Optionally build ledgers for each lease
+    for lease in unit.lease_set.all():
+        transactions = list(lease.charges.all()) + list(lease.payments.all())
+        transactions.sort(key=lambda x: x.date if hasattr(x, 'date') else x.due_date, reverse=True)
+        lease.ledger = [
+            {
+                'date': getattr(t, 'date', getattr(t, 'due_date', None)),
+                'type': 'Payment' if hasattr(t, 'amount') and hasattr(t, 'lease') and hasattr(t, 'date') else 'Charge',
+                'amount': t.amount,
+                'description': getattr(t, 'description', 'Payment')
+            }
+            for t in transactions
+        ]
+
+    context = {
+        'unit': unit
+    }
+    return render(request, 'rentals/unit_detail.html', context)
