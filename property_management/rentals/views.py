@@ -267,8 +267,20 @@ def unit_detail(request, unit_id):
 
 # Get application detail
 def application_detail(request, application_id):
-    app = get_object_or_404(Application.objects.select_related('unit__property'), pk=application_id)
-    return render(request, 'rentals/application_detail.html', {'application': app})
+    app = get_object_or_404(Application.objects.select_related('unit__property', 'applicant'), pk=application_id)
+
+    # Get all pending application IDs sorted by submission time
+    pending_apps = list(Application.objects.filter(status='pending').order_by('submitted_on').values_list('id', flat=True))
+    
+    current_index = pending_apps.index(app.id) if app.id in pending_apps else -1
+    prev_id = pending_apps[current_index - 1] if current_index > 0 else None
+    next_id = pending_apps[current_index + 1] if current_index < len(pending_apps) - 1 else None
+
+    return render(request, 'rentals/application_detail.html', {
+        'application': app,
+        'prev_app_id': prev_id,
+        'next_app_id': next_id
+    })
 
 # Update application status
 @require_POST
