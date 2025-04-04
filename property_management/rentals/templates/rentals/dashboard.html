@@ -122,6 +122,58 @@
             #applicationsTableBody tr:hover {
                 background-color: rgba(0, 0, 0, 0.18) !important;
             }
+        /* Sidebar */
+        #sidebar {
+        position: fixed;
+        top: 0;
+        right: -300px;
+        width: 300px;
+        height: 100%;
+        background-color: #fff;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+        transition: right 0.4s ease;
+        z-index: 1050;
+        overflow-y: auto;
+        }
+        #sidebar.active {
+        right: 0;
+        }
+
+        /* Sidebar Toggle Tab */
+        #sidebar-tab {
+        position: fixed;
+        top: 13px;
+        right: -5px;
+        width: 50px;
+        height: 50px;
+        background-color: #596268;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        z-index: 1100;
+        transition: right 0.4s ease, transform 0.4s ease;
+        }
+        #sidebar-tab.active {
+        right: 300px;
+        }
+
+        /* Rotate the arrow icon when active */
+        #sidebar-tab.active i {
+        transform: rotate(180deg);
+        }
+       /* Sidebar buttons */
+        #sidebar .btn {
+        border-radius: 4px; 
+        margin-bottom: 0.5rem;
+        width: 100%; 
+        text-align: left;
+        }
         </style>
     </head>
 
@@ -353,11 +405,37 @@
         </a>
     </div>
 
+<!-- Sidebar -->
+<div id="sidebar">
+    <div class="p-3">
+        <h5 class="mb-3">Sidebar</h5>
+        <a href="#" class="btn btn-light"><i class="fas fa-home mr-2"></i> Dashboard</a>
+        <a href="#" class="btn btn-light"><i class="fas fa-users mr-2"></i> Tenants</a>
+        <a href="#" class="btn btn-light"><i class="fas fa-building mr-2"></i> Properties</a>
+        <a href="#" class="btn btn-light"><i class="fas fa-clipboard-list mr-2"></i> Reports</a>
+      </div>
+  </div>
+  
+  <!-- Sidebar Toggle Tab -->
+  <div id="sidebar-tab">
+    <i class="fas fa-angle-double-left"></i>
+  </div>
+
     <!-- JS Libraries -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    x
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var sidebar = document.getElementById('sidebar');
+          var tab = document.getElementById('sidebar-tab');
+          tab.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            tab.classList.toggle('active');
+          });
+        });
+      </script>
+    
     <!-- Custom Greeting -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
