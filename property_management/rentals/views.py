@@ -126,6 +126,7 @@ def units_api(request):
     for unit in units:
         active_lease = next(iter(unit.lease_set.all()), None)
         tenant_name = active_lease.tenant.name if active_lease and active_lease.tenant else "None"
+        tenant_string = '';
 
         if unit.is_occupied:
             status = "Occupied"
@@ -138,7 +139,7 @@ def units_api(request):
             'property': unit.property.name,
             'unit': f'<a href="/units/{unit.id}/">#{unit.number}</a>',
             'address': unit.property.address,
-            'tenant': tenant_name,
+            'tenant': tenant_name if tenant_name == "None" else f'<a href="/people/{active_lease.tenant.id}/">{tenant_name}</a>',
             'rent': f"${int(unit.monthly_rent):,}",
             'status': status
         })

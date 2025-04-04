@@ -26,6 +26,12 @@
                 -ms-user-select: none;
                 cursor: pointer;
             }
+            a {
+                color:black;
+            }
+            a:hover {
+                color:black;
+            }
             .card {
                 margin-bottom: 20px;
             }
@@ -260,13 +266,13 @@
                                     {% for lease in expiring_leases %}
                                     <tr>
                                         <td class="pl-2"><a href="{% url 'person_detail' tenant_id=lease.tenant.id %}">
-        {{ lease.tenant.name }}
-    </a></td>
-    <td class="pr-5">
-        <a href="{% url 'unit_detail' unit_id=lease.unit.id %}">
-          {{ lease.unit.property.name }} #{{ lease.unit.number }}
-        </a>
-      </td>
+                                            {{ lease.tenant.name }}
+                                        </a></td>
+                                        <td class="pr-5">
+                                            <a href="{% url 'unit_detail' unit_id=lease.unit.id %}">
+                                            {{ lease.unit.property.name }} #{{ lease.unit.number }}
+                                            </a>
+                                        </td>
                                         <td class="pr-5">{{ lease.end_date|date:"n-j" }}</td>
                                     </tr>
                                     {% endfor %}

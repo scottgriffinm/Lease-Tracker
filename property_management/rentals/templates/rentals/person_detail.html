@@ -1,56 +1,72 @@
 {% load humanize %}
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>{{ tenant.name }} | Profile</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body class="p-4 bg-light">
-<div class="container">
-    <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
-    <h2 class="mt-3 mb-3">{{ tenant.name }}</h2>
-    <p><strong>Email:</strong> {{ tenant.email }}<br>
-       <strong>Phone:</strong> {{ tenant.phone }}</p>
-    <p><strong>Total Outstanding:</strong> ${{ tenant.outstanding_balance|floatformat:2|intcomma }}</p>
+    <style>
+        a {
+            color: black;
+        }
 
-    <h4 class="mt-4">Leases</h4>
-    {% for lease in tenant.lease_set.all %}
+        a:hover {
+            color: black;
+        }
+    </style>
+</head>
+
+<body class="p-4 bg-light">
+    <div class="container-fluid">
+        <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+        <h2 class="mt-3 mb-3">{{ tenant.name }}</h2>
+        <p><strong>Email:</strong> {{ tenant.email }}<br>
+            <strong>Phone:</strong> {{ tenant.phone }}
+        </p>
+        <p><strong>Total Outstanding:</strong> ${{ tenant.outstanding_balance|floatformat:2|intcomma }}</p>
+
+        <h4 class="mt-4">Leases</h4>
+        {% for lease in tenant.lease_set.all %}
         <div class="card mb-3">
             <div class="card-header">
                 {{ lease.unit.property.name }} #{{ lease.unit.number }} | {{ lease.start_date }} – {{ lease.end_date }}
             </div>
             <div class="card-body">
                 <p>Monthly Rent: ${{ lease.monthly_rent|floatformat:2|intcomma }}<br>
-                   Outstanding: ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{ lease.outstanding_balance_age_days }} days)</p>
+                    Outstanding: ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{
+                    lease.outstanding_balance_age_days }} days)</p>
 
-                   <strong>Ledger:</strong>
-<table class="table table-sm table-striped table-bordered mt-2">
-    <thead class="thead-light">
-        <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% if lease.ledger %}
-            {% for entry in lease.ledger %}
-                <tr>
-                    <td>{{ entry.date }}</td>
-                    <td>{{ entry.type }}</td>
-                    <td>${{ entry.amount|floatformat:2|intcomma }}</td>
-                    <td>{{ entry.description }}</td>
-                </tr>
-            {% endfor %}
-        {% else %}
-            <tr><td colspan="4">No transactions yet</td></tr>
-        {% endif %}
-    </tbody>
-</table>
+                <strong>Ledger:</strong>
+                <table class="table table-sm table-striped table-bordered mt-2">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if lease.ledger %}
+                        {% for entry in lease.ledger %}
+                        <tr>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.type }}</td>
+                            <td>${{ entry.amount|floatformat:2|intcomma }}</td>
+                            <td>{{ entry.description }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4">No transactions yet</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 </body>
+
 </html>

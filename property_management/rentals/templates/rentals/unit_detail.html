@@ -8,10 +8,18 @@
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #f9f9f9;
         }
+        
+        a {
+            color: black;
+        }
+
+        a:hover {
+            color: black;
+        }
     </style>
 </head>
 <body class="p-4 bg-light">
-<div class="container">
+<div class="container-fluid">
     <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
     <h2 class="mt-3 mb-1">{{ unit.property.name }} Unit #{{ unit.number }}</h2>
     <p class="mb-3">{{ unit.property.address }}</p>
