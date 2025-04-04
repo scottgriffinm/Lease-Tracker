@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.serializers import serialize
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta, datetime
 from collections import Counter
 from .models import Property, Unit, Tenant, Lease, Application, Payment
@@ -116,7 +118,7 @@ def dashboard(request):
 
     return render(request, 'rentals/dashboard.html', context)
 
-# Get all units data
+# Get units data
 def units_api(request):
     units = Unit.objects.select_related('property').prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.filter(end_date__gte=timezone.now().date()).select_related('tenant'))
@@ -146,7 +148,7 @@ def units_api(request):
 
     return JsonResponse({'data': unit_data})
 
-# Get all people data
+# Get people data
 def people(request):
     tenants = Tenant.objects.prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property').prefetch_related('payments', 'charges'))
@@ -156,7 +158,7 @@ def people(request):
     }
     return render(request, 'rentals/people.html', context)
 
-# Get one person's data
+# Get person detail
 def person_detail(request, tenant_id):
     tenant = get_object_or_404(
         Tenant.objects.prefetch_related(
@@ -193,7 +195,7 @@ def person_detail(request, tenant_id):
     }
     return render(request, 'rentals/person_detail.html', context)
 
-# Get one unit's data
+# Get unit detail
 def unit_detail(request, unit_id):
     unit = get_object_or_404(
         Unit.objects.select_related('property').prefetch_related(
@@ -228,4 +230,20 @@ def unit_detail(request, unit_id):
     }
 
     return render(request, 'rentals/unit_detail.html', context)
+
+# Get application detail
+def application_detail(request, application_id):
+    app = get_object_or_404(Application.objects.select_related('unit__property'), pk=application_id)
+    return render(request, 'rentals/application_detail.html', {'application': app})
+
+# Update application status
+@require_POST
+def update_application_status(request, application_id):
+    app = get_object_or_404(Application, pk=application_id)
+    new_status = request.POST.get('status')
+    if new_status in [Application.STATUS_APPROVED, Application.STATUS_REJECTED]:
+        app.status = new_status
+        app.save()
+        return JsonResponse({'success': True, 'new_status': app.get_status_display()})
+    return JsonResponse({'success': False, 'error': 'Invalid status'}, status=400)
 

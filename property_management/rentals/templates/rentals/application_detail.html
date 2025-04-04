@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Application Detail</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Application Details</h3>
+        <p><strong>Applicant:</strong> {{ application.applicant_name }}</p>
+        <p><strong>Unit:</strong> {{ application.unit.property.name }} #{{ application.unit.number }}</p>
+        <p><strong>Status:</strong> <span id="status-display">{{ application.get_status_display }}</span></p>
+        <p><strong>Submitted on:</strong> {{ application.submitted_on|date:"M j, Y H:i" }}</p>
+
+        {% if application.status == "pending" %}
+            <div class="mt-4">
+                <button class="btn btn-success" onclick="confirmAction('approved')">Accept</button>
+                <button class="btn btn-danger" onclick="confirmAction('rejected')">Reject</button>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function confirmAction(action) {
+            const readable = action === 'approved' ? 'approve' : 'reject';
+            if (confirm(`Are you sure you want to ${readable} this application?`)) {
+                fetch("{% url 'update_application_status' application.id %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: `status=${action}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Application ${data.new_status}.`);
+                        document.getElementById('status-display').textContent = data.new_status;
+                        location.reload();
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

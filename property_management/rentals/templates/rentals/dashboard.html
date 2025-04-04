@@ -59,6 +59,9 @@
                 min-height: 214px;
                 overflow-y: auto;
             }
+            #applicationsTableBody tr:hover {
+                background-color: rgba(0, 0, 0, 0.18) !important;
+            }
             .scrollable-table-wrapper {
                 max-height: 267px;
                 overflow-y: auto;
@@ -218,15 +221,15 @@
                             <table class="table table-sm text-nowrap mb-0" style="font-size: 0.85rem;" id="applicationsTableBody">
                                 <tbody>
                                 {% for app in rental_applications %}
-                                <tr data-status="{{ app.status }}">
+                                    
+                                <tr data-status="{{ app.status }}" data-href="{% url 'application_detail' app.id %}" style="cursor: pointer;">
                                     <td style="padding-left: 0.75rem;">{{ app.applicant_name }}</td>
-                                    <td>
-                                        <a href="{% url 'unit_detail' unit_id=app.unit.id %}">
-                                          {{ app.unit.property.name }} #{{ app.unit.number }}
-                                        </a>
-                                      </td>
-                                    <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">{{ app.submitted_on|date:"M j, Y" }}</td>
+                                    <td>{{ app.unit.property.name }} #{{ app.unit.number }}</td>
+                                    <td style="padding-right: 0.75rem;" data-timestamp="{{ app.submitted_on|date:'Y-m-d H:i:s' }}">
+                                        {{ app.submitted_on|date:"M j, Y" }}
+                                    </td>
                                 </tr>
+                            
                                 {% endfor %}
                                 </tbody>
                             </table>
@@ -483,8 +486,18 @@
         }
       
         document.addEventListener('DOMContentLoaded', () => {
-          filterApplications('pending');
+            // Show pending applications initially  
+            filterApplications('pending');
+            
+            // Click rows to go to application page
+            const rows = document.querySelectorAll('#applicationsTableBody tr[data-href]');
+            rows.forEach(row => {
+                row.addEventListener('click', () => {
+                    window.location.href = row.getAttribute('data-href');
+                });
+            });
         });
+        
       </script>
     
     <!-- Outstanding Balances Table -->
