@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>Properties</title>
+    <title>Applications</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -69,33 +69,46 @@
             padding-top: 1rem;
             margin-bottom: 1rem;
         }
+
+        .btn-group .btn.active {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 
 <body class="bg-light">
+
     <!-- Sidebar -->
     <div id="sidebar">
         <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
         <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
-        <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
+        <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+        <a href="#" class="btn btn-light mb-2 active"><i class="fas fa-file-alt mr-2"></i> Applications</a>
         <button class="btn btn-light mb-2"><i class="fas fa-tasks mr-2"></i> Tasks</button>
         <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
     </div>
 
     <div class="container-fluid">
-        <h2 class="mb-4">Properties</h2>
+        <h2 class="mb-4">Applications</h2>
+
+        <!-- Filter Buttons -->
+        <div class="btn-group mb-3" role="group" aria-label="Filter by status">
+            <button type="button" class="btn btn-light active" data-status="review">Review</button>
+            <button type="button" class="btn btn-light" data-status="approved">Accepted</button>
+            <button type="button" class="btn btn-light" data-status="rejected">Rejected</button>
+        </div>
 
         <div class="card">
             <div class="card-body p-0">
-                <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
+                <table id="applicationsTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
                     <thead class="thead-light">
                         <tr>
-                            <th>Property</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
                             <th>Unit</th>
-                            <th>Address</th>
-                            <th>Tenant</th>
-                            <th class="text-right">Rent</th>
+                            <th>Date Submitted</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -109,18 +122,20 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
+        let table;
+
         $(document).ready(function () {
-            $('#unitsDataTable').DataTable({
+            table = $('#applicationsTable').DataTable({
                 ajax: {
-                    url: '{% url "units_api" %}',
+                    url: '{% url "applications_api" %}',
                     dataSrc: 'data'
                 },
                 columns: [
-                    { data: 'property' },
+                    { data: 'name' },
+                    { data: 'email' },
+                    { data: 'phone' },
                     { data: 'unit' },
-                    { data: 'address' },
-                    { data: 'tenant' },
-                    { data: 'rent', className: 'text-right' },
+                    { data: 'submitted_on' },
                     { data: 'status' }
                 ],
                 pageLength: 25,
@@ -128,6 +143,17 @@
                 order: [],
                 dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
             });
+
+            // Filter by status buttons
+            $('.btn-group .btn').on('click', function () {
+                $('.btn-group .btn').removeClass('active');
+                $(this).addClass('active');
+                const status = $(this).data('status');
+                table.column(5).search(status).draw();
+            });
+
+            // Initial filter
+            table.column(5).search("review").draw();
         });
     </script>
 </body>

@@ -10,7 +10,7 @@ from .models import Property, Unit, Tenant, Lease, Application, Payment
 from django.db.models import Prefetch
 import json
 
-# Get dashboard data
+# GET View — `/`
 def dashboard(request):
     now = timezone.now()
     today = now.date()
@@ -121,7 +121,7 @@ def dashboard(request):
 
     return render(request, 'rentals/dashboard.html', context)
 
-# Get units data
+# GET API — `/api/units/`
 def units_api(request):
     units = Unit.objects.select_related('property').prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.filter(end_date__gte=timezone.now().date()).select_related('tenant'))
@@ -152,7 +152,7 @@ def units_api(request):
 
     return JsonResponse({'data': unit_data})
 
-# Get people data
+# GET API — `/api/tenants/`
 def tenants_api(request):
     tenants = Tenant.objects.prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property'))
@@ -186,7 +186,22 @@ def tenants_api(request):
 
     return JsonResponse({'data': tenant_data})
 
-# Get people data (old)
+# GET API — `/api/applications/`
+def applications_api(request):
+    apps = Application.objects.select_related('applicant', 'unit__property')
+    data = []
+    for app in apps:
+        data.append({
+            'name': app.applicant.name,
+            'email': app.applicant.email,
+            'phone': app.applicant.phone,
+            'unit': f"{app.unit.property.name} #{app.unit.number}",
+            'submitted_on': app.submitted_on.strftime('%Y-%m-%d'),
+            'status': app.status,
+        })
+    return JsonResponse({'data': data})
+
+# GET View — `/people/`
 def people(request):
     tenants = Tenant.objects.prefetch_related(
         Prefetch('lease_set', queryset=Lease.objects.select_related('unit__property').prefetch_related('payments', 'charges'))
@@ -196,10 +211,15 @@ def people(request):
     }
     return render(request, 'rentals/people.html', context)
 
+# GET View — `/properties/`
 def properties(request):
     return render(request, 'rentals/properties.html')
 
-# Get person detail
+# GET View — `/applications/`
+def applications(request):
+    return render(request, 'rentals/applications.html')
+
+# GET View — `/people/<tenant_id>/`
 def person_detail(request, tenant_id):
     tenant = get_object_or_404(
         Tenant.objects.prefetch_related(
@@ -236,7 +256,7 @@ def person_detail(request, tenant_id):
     }
     return render(request, 'rentals/person_detail.html', context)
 
-# Get unit detail
+# GET View — `/units/<unit_id>/`
 def unit_detail(request, unit_id):
     unit = get_object_or_404(
         Unit.objects.select_related('property').prefetch_related(
@@ -272,7 +292,7 @@ def unit_detail(request, unit_id):
 
     return render(request, 'rentals/unit_detail.html', context)
 
-# Get application detail
+# GET View — `/applications/<application_id>/`
 def application_detail(request, application_id):
     app = get_object_or_404(Application.objects.select_related('unit__property', 'applicant'), pk=application_id)
 
@@ -289,7 +309,7 @@ def application_detail(request, application_id):
         'next_app_id': next_id
     })
 
-# Update application status
+# POST API — `/applications/<application_id>/update_status/`
 @require_POST
 def update_application_status(request, application_id):
     app = get_object_or_404(Application.objects.select_related('unit__property', 'applicant'), pk=application_id)
