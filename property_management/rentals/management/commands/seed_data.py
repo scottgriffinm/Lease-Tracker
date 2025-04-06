@@ -136,50 +136,53 @@ class Command(BaseCommand):
 
         # Create rental applications (for vacant units)
         vacant_units = list(Unit.objects.filter(is_occupied=False))
-        used_unit_ids = set()
+        random.shuffle(vacant_units)
+        
+        for unit in vacant_units:
+            # Decide randomly: 25% no apps (stays Vacant), 30% review (Applications), 30% approved (Pending), 15% rejected only
+            decision = random.choices(
+                ['no_app', 'review', 'approved', 'rejected'],
+                weights=[25, 30, 30, 15],
+                k=1
+            )[0]
 
-        app_status_choices = ['approved', 'rejected'] + ['review'] * 3
+            if decision == 'no_app':
+                continue  # Leave as truly vacant
 
-        for _ in range(500):
-            if not vacant_units:
-                break  # All units filled
+            num_apps = random.randint(1, 2) if decision != 'no_app' else 0
+            statuses = []
 
-            # Pick a unit that doesn't already have an approved app
-            available_units = [u for u in vacant_units if u.id not in used_unit_ids]
-            if not available_units:
-                break
+            if decision == 'review':
+                statuses = ['review'] * num_apps
+            elif decision == 'approved':
+                statuses = ['approved'] + ['review'] * (num_apps - 1)
+            elif decision == 'rejected':
+                statuses = ['rejected'] * num_apps
 
-            unit = random.choice(available_units)
-            status = random.choice(app_status_choices)
+            for status in statuses:
+                employment_status = random.choices([True, False], weights=[0.8, 0.2])[0]
+                monthly_income = Decimal(random.randint(2500, 10000)) if employment_status else None
+                background_check_passed = random.choices([True, False], weights=[0.9, 0.1])[0]
 
-            # If status is approved, mark unit as "pending" by tracking it
-            if status == 'approved':
-                used_unit_ids.add(unit.id)
+                applicant = Tenant.objects.create(
+                    name=fake.name(),
+                    email=fake.email(),
+                    phone=fake.phone_number(),
+                    date_of_birth=fake.date_of_birth(minimum_age=18, maximum_age=90),
+                    credit_score=random.randint(550, 800),
+                    employment_status=employment_status,
+                    monthly_income=monthly_income,
+                    background_check_passed=background_check_passed,
+                    emergency_contact_name=fake.name(),
+                    emergency_contact_phone=fake.phone_number(),
+                    notes=""
+                )
 
-            # Generate tenant-like data for the applicant
-            employment_status = random.choices([True, False], weights=[0.8, 0.2])[0] if status == 'approved' else random.choice([True, False])
-            monthly_income = Decimal(random.randint(2500, 10000)) if employment_status else None
-            background_check_passed = random.choices([True, False], weights=[0.9, 0.1])[0] if status == 'approved' else random.choice([True, False])
-
-            tenant = Tenant.objects.create(
-                name=fake.name(),
-                email=fake.email(),
-                phone=fake.phone_number(),
-                date_of_birth=fake.date_of_birth(minimum_age=18, maximum_age=90),
-                credit_score=random.randint(550, 800),
-                employment_status=employment_status,
-                monthly_income=monthly_income,
-                background_check_passed=background_check_passed,
-                emergency_contact_name=fake.name(),
-                emergency_contact_phone=fake.phone_number(),
-                notes=""
-            )
-
-            Application.objects.create(
-                applicant=tenant,
-                unit=unit,
-                status=status,
-                submitted_on=fake.date_time_between(start_date='-30d', end_date='now')
-            )
+                Application.objects.create(
+                    applicant=applicant,
+                    unit=unit,
+                    status=status,
+                    submitted_on=fake.date_time_between(start_date='-30d', end_date='now')
+                )
 
         self.stdout.write(self.style.SUCCESS("✅ Fake data seeded successfully."))

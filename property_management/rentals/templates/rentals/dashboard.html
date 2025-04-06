@@ -74,51 +74,7 @@
             .custom-stripe {
                 background-color: rgba(0, 0, 0, 0.05) !important;
             }
-            /* DataTables controls (for all units table) */
-            .dataTables_wrapper .dataTables_length,
-            .dataTables_wrapper .dataTables_filter {
-                margin-top: 1rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .dataTables_wrapper .dataTables_filter {
-                float: left !important;
-                text-align: left !important;
-                margin-left: 1rem;
-            }
-
-            .dataTables_wrapper .dataTables_length {
-                float: left !important;
-                margin-left: 1rem;
-            }
-
-            .dataTables_wrapper .dataTables_info {
-                padding-top: 1rem;
-            }
-            .dataTables_wrapper .dataTables_info {
-                padding-top: 1.5rem;
-                margin-left: 1rem; 
-            }
-            .dataTables_wrapper .dataTables_paginate {
-                padding-top: 1rem;
-                margin-bottom: 1rem; 
-            }
-            .dataTables_wrapper .dataTables_paginate {
-                padding-top: 1rem;
-            }
-            /* Kill DataTables default sorting arrows (for all units table) */
-            table.dataTable thead th.sorting::before,
-            table.dataTable thead th.sorting::after,
-            table.dataTable thead th.sorting_asc::before,
-            table.dataTable thead th.sorting_asc::after,
-            table.dataTable thead th.sorting_desc::before,
-            table.dataTable thead th.sorting_desc::after {
-                display: none !important;
-                content: none !important;
-                background: none !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
+            
             /* Hover coloring on application table rows */
             #applicationsTableBody tr:hover {
                 background-color: rgba(0, 0, 0, 0.18) !important;
@@ -207,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- Listings (Vacant vs Occupied Chart) -->
+            <!-- Listings Chart -->
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -218,9 +174,10 @@
                         <div class="chart-container">
                             <canvas id="rentalChart"></canvas>
                         </div>
-                        <p class="mt-4">
+                        <p class="mt-3">
                             Vacant: {{ vacant_no_apps_count|intcomma }} |
-                            Pending: {{ vacant_with_apps_count|intcomma }} |
+                            Applications: {{ applications_count|intcomma }} </br>
+                            Pending: {{ pending_units_count|intcomma }} |
                             Occupied: {{ occupied_count|intcomma }}
                         </p>
                     </div>
@@ -586,15 +543,15 @@
 
     <!-- Charts -->
     <script>
-        // Listings (Occupied vs. Vacant) Chart
+        // Listings Chart
         var ctx1 = document.getElementById('rentalChart').getContext('2d');
         var rentalChart = new Chart(ctx1, {
             type: 'doughnut',
             data: {
-            labels: ['Vacant', 'Pending', 'Occupied'],
+                labels: ['Vacant', 'Applications', 'Pending', 'Occupied'],
             datasets: [{
-                data: [{{ vacant_no_apps_count }}, {{ vacant_with_apps_count }}, {{ occupied_count }}],
-                backgroundColor: [ '#FFA94D', '#6C5CE7', '#00B894'] 
+                data: [{{ vacant_no_apps_count }}, {{ applications_count }}, {{ pending_units_count }}, {{ occupied_count }}],
+                backgroundColor: ['#FFA94D', '#74b9ff', '#6C5CE7', '#00B894']
             }]
         },
         options: {
