@@ -40,7 +40,9 @@ class Command(BaseCommand):
                     name=f"Unit {i}",
                     number=str(i),
                     property=prop,
-                    monthly_rent=random.randint(800, 2500)
+                    monthly_rent=random.randint(800, 2500),
+                    beds=random.randint(1, 5),
+                    baths=random.randint(1, 3)
                 )
 
         # Create tenants & assign units (77% occupancy)

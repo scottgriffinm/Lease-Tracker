@@ -142,11 +142,13 @@ def units_api(request):
             status = "Vacant"
 
         unit_data.append({
-            'property': unit.property.name,
+            'property': f'<a href="/units/{unit.id}/">{unit.property.name}</a>',
             'unit': f'<a href="/units/{unit.id}/">#{unit.number}</a>',
-            'address': unit.property.address,
+            'address': f'<a href="/units/{unit.id}/">{unit.property.address}</a>',
             'tenant': tenant_name if tenant_name == "None" else f'<a href="/people/{active_lease.tenant.id}/">{tenant_name}</a>',
             'rent': f"${int(unit.monthly_rent):,}",
+            'beds': f"{int(unit.beds):,}",
+            'baths': f"{int(unit.baths):,}",
             'status': status
         })
 

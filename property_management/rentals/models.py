@@ -14,6 +14,8 @@ class Unit(models.Model):
     number = models.CharField(max_length=100)
     property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True)
     monthly_rent = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    beds = models.DecimalField(max_digits=8, decimal_places=0, default=1)
+    baths = models.DecimalField(max_digits=8, decimal_places=0, default=1)
     is_occupied = models.BooleanField(default=False)
 
     def __str__(self):
@@ -101,4 +103,4 @@ class Application(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
 
     def __str__(self):
-        return f"{self.applicant_name} - {self.unit.name} ({self.get_status_display()})"
+        return f"{self.applicant.name} - {self.unit.name} ({self.get_status_display()})"

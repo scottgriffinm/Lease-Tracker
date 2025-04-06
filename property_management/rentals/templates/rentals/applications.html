@@ -21,6 +21,9 @@
         a:hover {
             color: black;
         }
+        td {
+            user-select: text;
+        }
 
         #sidebar {
             position: fixed;
@@ -161,8 +164,14 @@
             });
 
             // Handle row click
-            $('#applicationsTable tbody').on('click', 'tr.clickable-row', function () {
-                window.location.href = $(this).data('href');
+            $('#applicationsTable tbody').on('click', 'tr.clickable-row', function (e) {
+                const selection = window.getSelection();
+                const isTextSelected = selection && selection.toString().length > 0;
+
+                // If no text is selected, and the target is a <td> (not inside a form input or link), navigate
+                if (!isTextSelected && !$(e.target).closest('a, button, input, textarea').length) {
+                    window.location.href = $(this).data('href');
+                }
             });
 
             // Filter by status buttons
