@@ -28,6 +28,13 @@
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #f9f9f9;
         }
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background-color: #f1f1f1;
+        }
+
 
         /* Sidebar */
         #sidebar {
@@ -69,7 +76,8 @@
     <div class="container-fluid">
         
         <h2 class="mt-3 mb-1">{{ unit.property.name }} Unit #{{ unit.number }}</h2>
-        <p class="mb-3">{{ unit.property.address }}</p>
+        <p class="mb-1">{{ unit.property.address }}</p>
+        <p class="mb-3"><strong>Monthly Rent:</strong> ${{ unit.monthly_rent|floatformat:2|intcomma }}</p>
 
         <!-- Lease Section -->
         <h4 class="mt-4">Leases</h4>
@@ -134,9 +142,9 @@
                     <tbody>
                         {% if applications %}
                             {% for app in applications %}
-                            <tr>
-                                <td>{{ app.applicant_name }}</td>
-                                <td>{{ app.get_status_display }}</td>
+                            <tr {% if app.status == 'review' %}class="clickable-row" data-href="{% url 'application_detail' app.id %}"{% endif %}>
+                                <td>{{ app.applicant.name }}</td>
+                                <td>{{ app.get_status_display|capfirst }}</td>
                                 <td>{{ app.submitted_on|date:"M j, Y g:i A" }}</td>
                             </tr>
                             {% endfor %}
@@ -150,6 +158,18 @@
             </div>
         </div>
     </div>
+  
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.clickable-row').forEach(row => {
+                row.addEventListener('click', () => {
+                    const url = row.getAttribute('data-href');
+                    if (url) window.location.href = url;
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

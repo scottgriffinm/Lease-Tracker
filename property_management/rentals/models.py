@@ -20,7 +20,6 @@ class Unit(models.Model):
         return f"{self.name} ({self.property.name if self.property else 'No Property'})"
 
 class Tenant(models.Model):
-    # Basic Info
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True)

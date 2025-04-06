@@ -121,7 +121,7 @@
                         <p class="mb-0">Unit Information</p>
                     </div>
                     <div class="card-body">
-                        <p><strong>Unit:</strong> {{ application.unit.name }} (#{{ application.unit.number }})</p>
+                        <p><strong>Unit:</strong> #{{ application.unit.number }}</p>
                         <p><strong>Property:</strong> {{ application.unit.property.name }}</p>
                         <p><strong>Address:</strong> {{ application.unit.property.address }}</p>
                         <p><strong>Monthly Rent:</strong> ${{ application.unit.monthly_rent|floatformat:0|intcomma }}</p>

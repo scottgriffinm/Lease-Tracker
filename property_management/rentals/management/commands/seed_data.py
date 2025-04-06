@@ -53,14 +53,14 @@ class Command(BaseCommand):
         tenants = []
         for unit in occupied_units:
             tenant = Tenant.objects.create(
-                name=fake.name(),
+                name=" ".join(fake.name().split()[:3]),
                 email=fake.email(),
                 phone=fake.phone_number(),
                 date_of_birth=fake.date_of_birth(minimum_age=18, maximum_age=90),
                 employment_status=True, 
                 monthly_income=Decimal(random.randint(3000, 12000)), 
                 background_check_passed=True, 
-                emergency_contact_name=fake.name(),
+                emergency_contact_name=" ".join(fake.name().split()[:3]),
                 emergency_contact_phone=fake.phone_number(),
                 notes=""  
             )
@@ -163,9 +163,9 @@ class Command(BaseCommand):
                 employment_status = random.choices([True, False], weights=[0.8, 0.2])[0]
                 monthly_income = Decimal(random.randint(2500, 10000)) if employment_status else None
                 background_check_passed = random.choices([True, False], weights=[0.9, 0.1])[0]
-
+                
                 applicant = Tenant.objects.create(
-                    name=fake.name(),
+                    name=" ".join(fake.name().split()[:3]),
                     email=fake.email(),
                     phone=fake.phone_number(),
                     date_of_birth=fake.date_of_birth(minimum_age=18, maximum_age=90),
@@ -173,7 +173,7 @@ class Command(BaseCommand):
                     employment_status=employment_status,
                     monthly_income=monthly_income,
                     background_check_passed=background_check_passed,
-                    emergency_contact_name=fake.name(),
+                    emergency_contact_name=" ".join(fake.name().split()[:3]),
                     emergency_contact_phone=fake.phone_number(),
                     notes=""
                 )

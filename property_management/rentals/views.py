@@ -267,7 +267,7 @@ def unit_detail(request, unit_id):
 
     context = {
         'unit': unit,
-        'applications': applications  # Add this line
+        'applications': applications
     }
 
     return render(request, 'rentals/unit_detail.html', context)
