@@ -42,7 +42,13 @@
             width: 100%;
             text-align: left;
         }
-
+        tr.clickable-row {
+            cursor: pointer;
+        }
+        tr.clickable-row:hover {
+            background-color: #d8d4d4 !important;
+        }
+        
         .dataTables_wrapper .dataTables_length,
         .dataTables_wrapper .dataTables_filter {
             margin-top: 1rem;
@@ -136,12 +142,27 @@
                     { data: 'phone' },
                     { data: 'unit' },
                     { data: 'submitted_on' },
-                    { data: 'status' }
+                    {
+                    data: 'status',
+                    render: function (data, type, row) {
+                        return data.charAt(0).toUpperCase() + data.slice(1);
+                    }
+                }
                 ],
+                createdRow: function (row, data, dataIndex) {
+                    // Make the row clickable
+                    $(row).addClass('clickable-row');
+                    $(row).attr('data-href', `/applications/${data.id}/`);
+                },
                 pageLength: 25,
                 lengthMenu: [10, 25, 50, 100],
                 order: [],
                 dom: '<"d-flex align-items-center"l<"ml-3"f>>tip'
+            });
+
+            // Handle row click
+            $('#applicationsTable tbody').on('click', 'tr.clickable-row', function () {
+                window.location.href = $(this).data('href');
             });
 
             // Filter by status buttons

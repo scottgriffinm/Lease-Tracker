@@ -74,51 +74,6 @@
             .custom-stripe {
                 background-color: rgba(0, 0, 0, 0.05) !important;
             }
-            /* DataTables controls (for all units table) */
-            .dataTables_wrapper .dataTables_length,
-            .dataTables_wrapper .dataTables_filter {
-                margin-top: 1rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .dataTables_wrapper .dataTables_filter {
-                float: left !important;
-                text-align: left !important;
-                margin-left: 1rem;
-            }
-
-            .dataTables_wrapper .dataTables_length {
-                float: left !important;
-                margin-left: 1rem;
-            }
-
-            .dataTables_wrapper .dataTables_info {
-                padding-top: 1rem;
-            }
-            .dataTables_wrapper .dataTables_info {
-                padding-top: 1.5rem;
-                margin-left: 1rem; 
-            }
-            .dataTables_wrapper .dataTables_paginate {
-                padding-top: 1rem;
-                margin-bottom: 1rem; 
-            }
-            .dataTables_wrapper .dataTables_paginate {
-                padding-top: 1rem;
-            }
-            /* Kill DataTables default sorting arrows (for all units table) */
-            table.dataTable thead th.sorting::before,
-            table.dataTable thead th.sorting::after,
-            table.dataTable thead th.sorting_asc::before,
-            table.dataTable thead th.sorting_asc::after,
-            table.dataTable thead th.sorting_desc::before,
-            table.dataTable thead th.sorting_desc::after {
-                display: none !important;
-                content: none !important;
-                background: none !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
             /* Hover coloring on application table rows */
             #applicationsTableBody tr:hover {
                 background-color: rgba(0, 0, 0, 0.18) !important;
@@ -136,7 +91,6 @@
                 z-index: 1050;
                 overflow-y: auto;
             }
-
             /* Sidebar buttons */
             #sidebar .btn {
             border-radius: 4px;
@@ -154,7 +108,7 @@
         <a href="#" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
         <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
         <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
-        <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
+        <a href="{% url 'applications' %}" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
         <button class="btn btn-light mb-2"><i class="fas fa-tasks mr-2"></i> Tasks</button>
         <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
     </div>

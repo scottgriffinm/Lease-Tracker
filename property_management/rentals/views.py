@@ -192,6 +192,7 @@ def applications_api(request):
     data = []
     for app in apps:
         data.append({
+            'id': app.id,
             'name': app.applicant.name,
             'email': app.applicant.email,
             'phone': app.applicant.phone,
@@ -298,15 +299,23 @@ def application_detail(request, application_id):
 
     # Get all in review application IDs sorted by submission time
     review_apps = list(Application.objects.filter(status='review').order_by('submitted_on').values_list('id', flat=True))
-    
     current_index = review_apps.index(app.id) if app.id in review_apps else -1
     prev_id = review_apps[current_index - 1] if current_index > 0 else None
     next_id = review_apps[current_index + 1] if current_index < len(review_apps) - 1 else None
 
+    # Get other review applications for the same unit
+    unit_review_apps = (
+        Application.objects
+        .filter(unit=app.unit, status='review')
+        .select_related('applicant')
+        .order_by('submitted_on')
+    )
+
     return render(request, 'rentals/application_detail.html', {
         'application': app,
         'prev_app_id': prev_id,
-        'next_app_id': next_id
+        'next_app_id': next_id,
+        'unit_review_apps': unit_review_apps 
     })
 
 # POST API — `/applications/<application_id>/update_status/`

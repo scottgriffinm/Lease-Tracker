@@ -70,7 +70,7 @@
         <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
         <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
         <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
+        <a href="{% url 'applications' %}" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
         <button class="btn btn-light mb-2"><i class="fas fa-tasks mr-2"></i> Tasks</button>
         <a href="#" class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</a>
     </div>
@@ -129,6 +129,14 @@
                         <p><strong>Status:</strong>
                             {% if application.unit.is_occupied %}Occupied{% else %}Vacant{% endif %}
                         </p>
+                        {% if unit_review_apps %}
+                            <p><strong>Applications:</strong>
+                                {% for other_app in unit_review_apps %}
+                                        <a href="{% url 'application_detail' other_app.id %}">
+                                            {{ other_app.applicant.name }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                        </p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
