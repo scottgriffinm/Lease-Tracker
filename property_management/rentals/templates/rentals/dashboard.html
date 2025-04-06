@@ -74,7 +74,51 @@
             .custom-stripe {
                 background-color: rgba(0, 0, 0, 0.05) !important;
             }
-            
+            /* DataTables controls (for all units table) */
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                margin-top: 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .dataTables_wrapper .dataTables_filter {
+                float: left !important;
+                text-align: left !important;
+                margin-left: 1rem;
+            }
+
+            .dataTables_wrapper .dataTables_length {
+                float: left !important;
+                margin-left: 1rem;
+            }
+
+            .dataTables_wrapper .dataTables_info {
+                padding-top: 1rem;
+            }
+            .dataTables_wrapper .dataTables_info {
+                padding-top: 1.5rem;
+                margin-left: 1rem; 
+            }
+            .dataTables_wrapper .dataTables_paginate {
+                padding-top: 1rem;
+                margin-bottom: 1rem; 
+            }
+            .dataTables_wrapper .dataTables_paginate {
+                padding-top: 1rem;
+            }
+            /* Kill DataTables default sorting arrows (for all units table) */
+            table.dataTable thead th.sorting::before,
+            table.dataTable thead th.sorting::after,
+            table.dataTable thead th.sorting_asc::before,
+            table.dataTable thead th.sorting_asc::after,
+            table.dataTable thead th.sorting_desc::before,
+            table.dataTable thead th.sorting_desc::after {
+                display: none !important;
+                content: none !important;
+                background: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
             /* Hover coloring on application table rows */
             #applicationsTableBody tr:hover {
                 background-color: rgba(0, 0, 0, 0.18) !important;
@@ -133,7 +177,7 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th onclick="sortOutstandingBalancesTable(0)" class="pl-2" style="width: 35%;">Name</th>
-                                    <th onclick="sortOutstandingBalancesTable(1)" style="width: 23%;">Listing</th>
+                                    <th onclick="sortOutstandingBalancesTable(1)" style="width: 20%;">Unit</th>
                                     <th onclick="sortOutstandingBalancesTable(2)" class="pr-0" style="width: 15%; text-align: right;">Days</th>
                                     <th onclick="sortOutstandingBalancesTable(3)" class="pr-2" style="width: 15%; text-align: right;">Amount</th>
                                 </tr>
@@ -193,7 +237,7 @@
                     <div class="card-body p-0">
                         <!-- Filter Buttons -->
                         <div class="btn-group d-flex m-2" role="group">
-                        <button class="btn btn-light w-100" style="font-size: 0.9rem;" id="btn-review" onclick="filterApplications('review')">Review ({{ review_app_count }})</button>
+                        <button class="btn btn-light w-100" style="font-size: 0.9rem;" id="btn-review" onclick="filterApplications('review')">To Review ({{ review_app_count }})</button>
                         <button class="btn btn-light w-50" style="font-size: 0.9rem;" id="btn-approved" onclick="filterApplications('approved')">Accepted</button>
                         <button class="btn btn-light w-50" style="font-size: 0.9rem;" id="btn-rejected" onclick="filterApplications('rejected')">Rejected</button>
                         </div>
@@ -202,7 +246,7 @@
                         <thead class="thead-light" style="position: sticky; top: 0; z-index: 2; background-color: #f8f9fa;">
                             <tr>
                             <th style="width: 35%; padding-left: 0.75rem;" onclick="sortApplicationsTable(0)" id="appHeader0">Name</th>
-                            <th style="width: 19%;" onclick="sortApplicationsTable(1)" id="appHeader1">Listing</th>
+                            <th style="width: 19%;" onclick="sortApplicationsTable(1)" id="appHeader1">Unit</th>
                             <th style="width: 15%; padding-right: 0rem;" onclick="sortApplicationsTable(2)" id="appHeader2">Date Submitted</th>
                             </tr>
                         </thead>
@@ -248,7 +292,7 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th onclick="sortExpiringLeasesTable(0)" class="pl-2" style="width: 35%;">Name</th>
-                                    <th onclick="sortExpiringLeasesTable(1)" style="width: 22%;">Listing</th>
+                                    <th onclick="sortExpiringLeasesTable(1)" style="width: 22%;">Unit</th>
                                     <th onclick="sortExpiringLeasesTable(2)" class="pr-0" style="width: 10%;">End Date</th>
                                 </tr>
                             </thead>
