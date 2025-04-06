@@ -1,9 +1,9 @@
-{% load humanize %}
+{% load static %}
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title>People (Tenants)</title>
+    <title>Properties</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -73,31 +73,29 @@
 </head>
 
 <body class="bg-light">
-
     <!-- Sidebar -->
     <div id="sidebar">
         <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
-        <a href="#" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
-        <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+        <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+        <a href="#" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
         <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
         <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
     </div>
 
     <div class="container-fluid">
-        <h2 class="mb-4">People</h2>
+        <h2 class="mb-4">Properties</h2>
 
         <div class="card">
             <div class="card-body p-0">
-                <table id="tenantsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
+                <table id="unitsDataTable" class="table table-sm table-striped text-nowrap mb-0" style="font-size: 0.85rem;">
                     <thead class="thead-light">
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
+                            <th>Property</th>
                             <th>Unit</th>
-                            <th>Lease Dates</th>
+                            <th>Address</th>
+                            <th>Tenant</th>
                             <th class="text-right">Rent</th>
-                            <th class="text-right">Outstanding</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -111,19 +109,18 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#tenantsDataTable').DataTable({
+            $('#unitsDataTable').DataTable({
                 ajax: {
-                    url: '{% url "tenants_api" %}',
+                    url: '{% url "units_api" %}',
                     dataSrc: 'data'
                 },
                 columns: [
-                    { data: 'name' },
-                    { data: 'email' },
-                    { data: 'phone' },
+                    { data: 'property' },
                     { data: 'unit' },
-                    { data: 'lease_dates' },
+                    { data: 'address' },
+                    { data: 'tenant' },
                     { data: 'rent', className: 'text-right' },
-                    { data: 'outstanding', className: 'text-right' }
+                    { data: 'status' }
                 ],
                 pageLength: 25,
                 lengthMenu: [10, 25, 50, 100],

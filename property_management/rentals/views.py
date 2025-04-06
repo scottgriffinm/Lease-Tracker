@@ -192,6 +192,9 @@ def people(request):
     }
     return render(request, 'rentals/people.html', context)
 
+def properties(request):
+    return render(request, 'rentals/properties.html')
+
 # Get person detail
 def person_detail(request, tenant_id):
     tenant = get_object_or_404(

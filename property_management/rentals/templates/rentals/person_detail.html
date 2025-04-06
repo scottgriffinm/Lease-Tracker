@@ -53,94 +53,94 @@
 
 <body>
 
-   <!-- Sidebar -->
-   <div id="sidebar">
-    <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
-    <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
-    <a href="{% url 'dashboard' %}#unitsDataTableTop" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
-    <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
-    <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
+        <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+        <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+        <button class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</button>
+        <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
     </div>
 
-<div class="container-fluid">
-   
-    <h2 class="mt-3 mb-4">{{ tenant.name }}</h2>
+    <div class="container-fluid">
+    
+        <h2 class="mt-3 mb-4">{{ tenant.name }}</h2>
 
-    <!-- Tenant Info -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header">
-            <strong>Tenant Information</strong>
-        </div>
-        <div class="card-body">
-            <p><strong>Email:</strong> {{ tenant.email }}</p>
-            <p><strong>Phone:</strong> {{ tenant.phone }}</p>
-            <p><strong>Date of Birth:</strong> {{ tenant.date_of_birth|default:"N/A" }}</p>
-            <p><strong>Credit Score:</strong> {{ tenant.credit_score|default:"N/A" }}</p>
-            <p><strong>Employment Status:</strong> 
-                {% if tenant.employment_status %}Employed{% else %}Unemployed{% endif %}
-            </p>
-            <p><strong>Monthly Income:</strong> 
-                {% if tenant.monthly_income %}
-                    ${{ tenant.monthly_income|floatformat:0|intcomma }}
-                {% else %}
-                    N/A
-                {% endif %}
-            </p>
-            <p><strong>Background Check:</strong> 
-                {% if tenant.background_check_passed %}Passed{% else %}Failed{% endif %}
-            </p>
-            <p><strong>Emergency Contact:</strong> 
-                {{ tenant.emergency_contact_name|default:"N/A" }} ({{ tenant.emergency_contact_phone|default:"N/A" }})
-            </p>
-            {% if tenant.notes %}
-            <p><strong>Notes:</strong> {{ tenant.notes }}</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Lease Info -->
-    <h4 class="mb-3">Leases</h4>
-    {% for lease in tenant.lease_set.all %}
-    <div class="card mb-3 shadow-sm">
-        <div class="card-header">
-            {{ lease.unit.property.name }} #{{ lease.unit.number }} | {{ lease.start_date }} – {{ lease.end_date }}
-        </div>
-        <div class="card-body">
-            <p>Monthly Rent: ${{ lease.monthly_rent|floatformat:2|intcomma }}<br>
-                Outstanding: ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{ lease.outstanding_balance_age_days }} days)</p>
-
-            <strong>Ledger:</strong>
-            <table class="table table-sm table-striped table-bordered mt-2">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if lease.ledger %}
-                        {% for entry in lease.ledger %}
-                        <tr>
-                            <td>{{ entry.date }}</td>
-                            <td>{{ entry.type }}</td>
-                            <td>${{ entry.amount|floatformat:2|intcomma }}</td>
-                            <td>{{ entry.description }}</td>
-                        </tr>
-                        {% endfor %}
+        <!-- Tenant Info -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <strong>Tenant Information</strong>
+            </div>
+            <div class="card-body">
+                <p><strong>Email:</strong> {{ tenant.email }}</p>
+                <p><strong>Phone:</strong> {{ tenant.phone }}</p>
+                <p><strong>Date of Birth:</strong> {{ tenant.date_of_birth|default:"N/A" }}</p>
+                <p><strong>Credit Score:</strong> {{ tenant.credit_score|default:"N/A" }}</p>
+                <p><strong>Employment Status:</strong> 
+                    {% if tenant.employment_status %}Employed{% else %}Unemployed{% endif %}
+                </p>
+                <p><strong>Monthly Income:</strong> 
+                    {% if tenant.monthly_income %}
+                        ${{ tenant.monthly_income|floatformat:0|intcomma }}
                     {% else %}
-                        <tr>
-                            <td colspan="4">No transactions yet</td>
-                        </tr>
+                        N/A
                     {% endif %}
-                </tbody>
-            </table>
+                </p>
+                <p><strong>Background Check:</strong> 
+                    {% if tenant.background_check_passed %}Passed{% else %}Failed{% endif %}
+                </p>
+                <p><strong>Emergency Contact:</strong> 
+                    {{ tenant.emergency_contact_name|default:"N/A" }} ({{ tenant.emergency_contact_phone|default:"N/A" }})
+                </p>
+                {% if tenant.notes %}
+                <p><strong>Notes:</strong> {{ tenant.notes }}</p>
+                {% endif %}
+            </div>
         </div>
+
+        <!-- Lease Info -->
+        <h4 class="mb-3">Leases</h4>
+        {% for lease in tenant.lease_set.all %}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header">
+                {{ lease.unit.property.name }} #{{ lease.unit.number }} | {{ lease.start_date }} – {{ lease.end_date }}
+            </div>
+            <div class="card-body">
+                <p>Monthly Rent: ${{ lease.monthly_rent|floatformat:2|intcomma }}<br>
+                    Outstanding: ${{ lease.outstanding_balance|floatformat:2|intcomma }} ({{ lease.outstanding_balance_age_days }} days)</p>
+
+                <strong>Ledger:</strong>
+                <table class="table table-sm table-striped table-bordered mt-2">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if lease.ledger %}
+                            {% for entry in lease.ledger %}
+                            <tr>
+                                <td>{{ entry.date }}</td>
+                                <td>{{ entry.type }}</td>
+                                <td>${{ entry.amount|floatformat:2|intcomma }}</td>
+                                <td>{{ entry.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">No transactions yet</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-muted">This tenant has no leases.</p>
+        {% endfor %}
     </div>
-    {% empty %}
-        <p class="text-muted">This tenant has no leases.</p>
-    {% endfor %}
-</div>
 </body>
 </html>
