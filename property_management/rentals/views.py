@@ -21,16 +21,16 @@ def dashboard(request):
     outstanding_leases = list(leases)
     total_outstanding = sum(lease.outstanding_balance for lease in leases)
 
-    # Occupied/Vacant/Pending Units
+    # Occupied/Vacant/Review Units
     occupied_count = Unit.objects.filter(is_occupied=True).count()
     vacant_units = Unit.objects.filter(is_occupied=False)
-    pending_units = Application.objects.filter(status='pending').values_list('unit_id', flat=True)
-    vacant_with_apps_count = vacant_units.filter(id__in=pending_units).count()
-    vacant_no_apps_count = vacant_units.exclude(id__in=pending_units).count()
+    approved_unit_ids = Application.objects.filter(status='approved').values_list('unit_id', flat=True)
+    vacant_with_apps_count = vacant_units.filter(id__in=approved_unit_ids).count()
+    vacant_no_apps_count = vacant_units.exclude(id__in=approved_unit_ids).count()
 
     # Rental applications
     rental_applications = Application.objects.select_related('unit__property').order_by('-submitted_on')
-    pending_app_count = Application.objects.filter(status='pending').count()
+    review_app_count = Application.objects.filter(status='review').count()
 
     # Expiring leases (next 30 days)
     next_30_days = today + timedelta(days=30)
@@ -87,7 +87,7 @@ def dashboard(request):
     )
 
     # Label Occupied/Pending/Vacant in all units set
-    pending_unit_ids = set(pending_units)
+    pending_unit_ids = set(approved_unit_ids)
     for unit in all_units:
         if unit.is_occupied:
             unit.status = "Occupied"
@@ -107,7 +107,7 @@ def dashboard(request):
         'vacant_with_apps_count': vacant_with_apps_count,
         'vacant_no_apps_count': vacant_no_apps_count,
         'rental_applications': rental_applications,
-        'pending_app_count': pending_app_count,
+        'review_app_count': review_app_count,
         'expiring_leases': expiring_leases,
         'expiring_leases_distribution': json.dumps(expiring_distribution),
         'tasks': tasks,
@@ -128,11 +128,10 @@ def units_api(request):
     for unit in units:
         active_lease = next(iter(unit.lease_set.all()), None)
         tenant_name = active_lease.tenant.name if active_lease and active_lease.tenant else "None"
-        tenant_string = '';
 
         if unit.is_occupied:
             status = "Occupied"
-        elif Application.objects.filter(unit=unit, status='pending').exists():
+        elif Application.objects.filter(unit=unit, status='approved').exists():
             status = "Pending"
         else:
             status = "Vacant"
@@ -272,12 +271,12 @@ def unit_detail(request, unit_id):
 def application_detail(request, application_id):
     app = get_object_or_404(Application.objects.select_related('unit__property', 'applicant'), pk=application_id)
 
-    # Get all pending application IDs sorted by submission time
-    pending_apps = list(Application.objects.filter(status='pending').order_by('submitted_on').values_list('id', flat=True))
+    # Get all in review application IDs sorted by submission time
+    review_apps = list(Application.objects.filter(status='review').order_by('submitted_on').values_list('id', flat=True))
     
-    current_index = pending_apps.index(app.id) if app.id in pending_apps else -1
-    prev_id = pending_apps[current_index - 1] if current_index > 0 else None
-    next_id = pending_apps[current_index + 1] if current_index < len(pending_apps) - 1 else None
+    current_index = review_apps.index(app.id) if app.id in review_apps else -1
+    prev_id = review_apps[current_index - 1] if current_index > 0 else None
+    next_id = review_apps[current_index + 1] if current_index < len(review_apps) - 1 else None
 
     return render(request, 'rentals/application_detail.html', {
         'application': app,

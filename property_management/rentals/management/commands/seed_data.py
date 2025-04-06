@@ -136,16 +136,27 @@ class Command(BaseCommand):
 
         # Create rental applications (for vacant units)
         vacant_units = list(Unit.objects.filter(is_occupied=False))
-        app_status_choices = ['approved', 'rejected'] + ['pending'] * 10
+        used_unit_ids = set()
 
-        for _ in range(300):
+        app_status_choices = ['approved', 'rejected'] + ['review'] * 3
+
+        for _ in range(500):
             if not vacant_units:
                 break  # All units filled
 
-            unit = random.choice(vacant_units)
+            # Pick a unit that doesn't already have an approved app
+            available_units = [u for u in vacant_units if u.id not in used_unit_ids]
+            if not available_units:
+                break
+
+            unit = random.choice(available_units)
             status = random.choice(app_status_choices)
 
-            # Generate a tenant profile even for applicants
+            # If status is approved, mark unit as "pending" by tracking it
+            if status == 'approved':
+                used_unit_ids.add(unit.id)
+
+            # Generate tenant-like data for the applicant
             employment_status = random.choices([True, False], weights=[0.8, 0.2])[0] if status == 'approved' else random.choice([True, False])
             monthly_income = Decimal(random.randint(2500, 10000)) if employment_status else None
             background_check_passed = random.choices([True, False], weights=[0.9, 0.1])[0] if status == 'approved' else random.choice([True, False])
