@@ -1,6 +1,6 @@
 # Property Management Dashboard Demo
 
-A Django rental property management demo that handles properties, units, tenants, leases, payments, and rental applications using Bootstrap, Chart.js, and DataTables. A twilio support chat is included. Live at https://scottgriffinm.pythonanywhere.com (4/7/25).
+A Django rental property management demo that handles properties, units, tenants, leases, payments, and rental applications using Bootstrap, Chart.js, and DataTables. A twilio support chat is included. Lives at https://scottgriffinm.pythonanywhere.com.
 
 **Project Structure:**
 
