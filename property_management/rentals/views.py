@@ -119,6 +119,10 @@ def dashboard(request):
 
     return render(request, 'rentals/dashboard.html', context)
 
+# GET View — `/support/`
+def support(request):
+    return render(request, 'rentals/support.html')
+
 # GET API — `/api/units/`
 def units_api(request):
     units = Unit.objects.select_related('property').prefetch_related(
