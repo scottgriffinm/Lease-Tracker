@@ -34,7 +34,7 @@ def dashboard(request):
     expiring_distribution = Counter(lease.end_date.strftime("%Y-%m-%d") for lease in expiring_leases)
     expiring_distribution = dict(sorted(expiring_distribution.items()))
 
-    # Tasks - Top 10 that are not completed
+    # Tasks - Top 10 that are not Completed
     tasks = Task.objects.exclude(status=Task.STATUS_COMPLETED).order_by('due_date')[:10]
 
     # Recent activity (past two days)

@@ -17,4 +17,4 @@ urlpatterns = [
     path('tasks/new/', views.create_task, name='create_task'),
     path('tasks/<int:task_id>/', views.task_detail, name='task_detail'),
     path('api/units_by_property/', views.units_by_property, name='units_by_property'),
-]
+   ]

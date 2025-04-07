@@ -105,11 +105,11 @@ class Application(models.Model):
     def __str__(self):
         return f"{self.applicant.name} - {self.unit.name} ({self.get_status_display()})"
     
-    
+
 class Task(models.Model):
-    STATUS_NOT_STARTED = 'not_started'
-    STATUS_IN_PROGRESS = 'in_progress'
-    STATUS_COMPLETED = 'completed'
+    STATUS_NOT_STARTED = 'Not Started'
+    STATUS_IN_PROGRESS = 'In Progress'
+    STATUS_COMPLETED = 'Completed'
 
     STATUS_CHOICES = [
         (STATUS_NOT_STARTED, 'Not Started'),
