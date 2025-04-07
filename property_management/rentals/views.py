@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.serializers import serialize
@@ -6,7 +6,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta, datetime
 from collections import Counter
-from .models import Property, Unit, Tenant, Lease, Application, Payment
+from .models import Property, Unit, Tenant, Lease, Application, Payment, Task
+from .forms import TaskForm
 from django.db.models import Prefetch
 import json
 
@@ -33,11 +34,8 @@ def dashboard(request):
     expiring_distribution = Counter(lease.end_date.strftime("%Y-%m-%d") for lease in expiring_leases)
     expiring_distribution = dict(sorted(expiring_distribution.items()))
 
-    # Tasks
-    tasks = [
-        {"title": "Fix Broken Screen", "due_date": "2025-04-05", "status": "In Progress"},
-        {"title": "Paint Vacant Unit #101", "due_date": "2025-04-10", "status": "Not Started"},
-    ]
+    # Tasks - Top 10 that are not completed
+    tasks = Task.objects.exclude(status=Task.STATUS_COMPLETED).order_by('due_date')[:10]
 
     # Recent activity (past two days)
     recent_activity = []
@@ -222,6 +220,11 @@ def properties(request):
 def applications(request):
     return render(request, 'rentals/applications.html')
 
+# GET View — `/tasks/`
+def tasks(request):
+    tasks = Task.objects.select_related('property', 'unit').order_by('due_date')
+    return render(request, 'rentals/tasks.html', {'tasks': tasks})
+
 # GET View — `/people/<tenant_id>/`
 def person_detail(request, tenant_id):
     tenant = get_object_or_404(
@@ -320,6 +323,24 @@ def application_detail(request, application_id):
         'unit_review_apps': unit_review_apps 
     })
 
+# GET View — `/tasks/<task_id>/`
+def task_detail(request, task_id):
+    task = get_object_or_404(Task.objects.select_related('property', 'unit'), pk=task_id)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Task.STATUS_CHOICES).keys():
+            task.status = new_status
+            task.save()
+    return render(request, 'rentals/task_detail.html', {'task': task})
+
+# GET API — `/api/units_by_property/`
+def units_by_property(request):
+    property_id = request.GET.get('property_id')
+    units = Unit.objects.filter(property_id=property_id).order_by('number')
+    unit_options = [{'id': u.id, 'text': f'Unit {u.number}'} for u in units]
+    return JsonResponse({'units': unit_options})
+
 # POST API — `/applications/<application_id>/update_status/`
 @require_POST
 def update_application_status(request, application_id):
@@ -331,3 +352,14 @@ def update_application_status(request, application_id):
         return JsonResponse({'success': True, 'new_status': app.get_status_display()})
     return JsonResponse({'success': False, 'error': 'Invalid status'}, status=400)
 
+# GET/POST API — `tasks/new/`
+def create_task(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('tasks')  # Make sure this name matches your URL pattern
+    else:
+        form = TaskForm()
+
+    return render(request, 'rentals/task_form.html', {'form': form})

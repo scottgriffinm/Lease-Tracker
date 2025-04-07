@@ -24,17 +24,22 @@ class Command(BaseCommand):
         Property.objects.all().delete()
 
         # Create properties and units
-        for _ in range(10):
-            prop = Property.objects.create(
-                name=random.choice([
+        property_names_used = set()
+        possible_property_names = [
                     "Maple Grove", "Oakview", "Cedar Flats", "Stonehill", "Pine Ridge",
                     "Heights", "Riverbend", "Lakeside", "Elm Court", "Brookside",
                     "Park Place", "Sunset Point", "Hilltop", "Reserve", "Skyline",
                     "Meadow Run", "Forest Glen", "Pines", "Westwood", "Creekside"
-                ]),
+                ]
+        for _ in range(10):
+            property_name = random.choice(possible_property_names)
+            while property_name in property_names_used:
+                property_name = random.choice(possible_property_names)
+            property_names_used.add(property_name)
+            prop = Property.objects.create(
+                name=property_name,
                 address=fake.address()
             )
-
             for i in range(1, 501):
                 Unit.objects.create(
                     name=f"Unit {i}",

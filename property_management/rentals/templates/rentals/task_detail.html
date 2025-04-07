@@ -1,0 +1,118 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ task.title }} | Task Detail</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            padding: 2rem;
+            background-color: #f8f9fa;
+            margin-left: 200px;
+        }
+
+        a {
+            color: black;
+        }
+
+        a:hover {
+            color: black;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100%;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 1rem;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            z-index: 1050;
+            overflow-y: auto;
+        }
+
+        #sidebar .btn {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
+        <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
+        <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
+        <a href="{% url 'applications' %}" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
+        <button class="btn btn-light mb-2"><i class="fas fa-tasks mr-2"></i> Tasks</button>
+        <button class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <h2 class="mt-3 mb-4">{{ task.title }}</h2>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                Task Information
+            </div>
+            <div class="card-body">
+                <p><strong>Property:</strong> {{ task.property.name }}</p>
+                <p><strong>Unit:</strong> 
+                    {% if task.unit %}
+                        {{ task.unit.number }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </p>
+                <p><strong>Due Date:</strong> {{ task.due_date }}</p>
+                <p><strong>Status:</strong> {{ task.get_status_display }}</p>
+                {% if task.notes %}
+                    <p><strong>Notes:</strong> {{ task.notes|linebreaks }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                Update Task Status
+            </div>
+            <div class="card-body">
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="status">Change Status:</label>
+                        <select name="status" id="status" class="form-control">
+                            {% for value, label in task.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-start mt-3">
+                        <button type="submit" class="btn btn-light border mr-2">
+                            Update
+                        </button>
+                        <a href="{% url 'tasks' %}" class="btn btn-light border">
+                            Back
+                        </a>
+                    </div>
+                 </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
