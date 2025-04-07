@@ -6,7 +6,8 @@
     <title>Support</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script defer src="https://media.twiliocdn.com/sdk/js/webchat-v3/releases/3.3.0/webchat.min.js" integrity="sha256-ydLLXnNrb26iFUvKAHsYt9atwfzz0LNcgBmo0NmD5Uk=" crossorigin="anonymous"></script>
+    <script defer src="https://media.twiliocdn.com/sdk/js/webchat-v3/releases/3.3.0/webchat.min.js"
+        integrity="sha256-ydLLXnNrb26iFUvKAHsYt9atwfzz0LNcgBmo0NmD5Uk=" crossorigin="anonymous"></script>
     <style>
         body {
             padding: 2rem;
@@ -34,6 +35,46 @@
             width: 100%;
             text-align: left;
         }
+
+        /* SVG Line Animation */
+        #animated-line {
+            width: 50vw;
+            height: auto;
+            max-width: 100%;
+            display: block;
+            margin: 6rem auto;
+        }
+
+        /* Animated stroke */
+        .cls-1 {
+            fill: none;
+            stroke: #000;
+            stroke-width: 3px;
+            stroke-miterlimit: 10;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawLine 2s ease-out forwards;
+        }
+
+        /* Arrowhead */
+        .arrowhead path {
+            fill: #000;
+            opacity: 0;
+            animation: fadeArrow 0.8s ease-in forwards;
+            animation-delay: 1.8s;
+        }
+
+        @keyframes drawLine {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes fadeArrow {
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -44,13 +85,26 @@
         <a href="{% url 'dashboard' %}" class="btn btn-light mb-2"><i class="fas fa-home mr-2"></i> Dashboard</a>
         <a href="{% url 'people' %}" class="btn btn-light mb-2"><i class="fas fa-users mr-2"></i> People</a>
         <a href="{% url 'properties' %}" class="btn btn-light mb-2"><i class="fas fa-building mr-2"></i> Properties</a>
-        <a href="{% url 'applications' %}" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i> Applications</a>
+        <a href="{% url 'applications' %}" class="btn btn-light mb-2"><i class="fas fa-file-alt mr-2"></i>
+            Applications</a>
         <a href="{% url 'tasks' %}" class="btn btn-light mb-2"><i class="fas fa-tasks mr-2"></i> Tasks</a>
         <a href="{% url 'support' %}" class="btn btn-light mb-2"><i class="fas fa-life-ring mr-2"></i> Support</a>
     </div>
 
     <!-- Main Content -->
     <div class="container-fluid">
+
+        <svg id="animated-line" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1248.88 999.76">
+            <path class="cls-1"
+                d="M27.97.41C-22.03,178.41-4.18,364.54,107.21,395.6c165.15,46.05,474.67-323.01,638.86-195.81,126.72,98.17-30.63,491.68,113.51,648.92,98.24,107.17,246.98,132.64,360.31,136.81" />
+
+            <g class="arrowhead" transform="translate(-210, -38)">
+                <path
+                    d="M1218.76,999.26c-1.13,0-2.22-.54-2.91-1.45-.67-.87-.88-1.94-.58-3l4.17-15.21c.72-2.63,3.18-4.48,5.98-4.48.88,0,1.73.18,2.54.53l18.28,7.98c1.66.72,2.19,2.21,2.15,3.37-.05,1.15-.7,2.58-2.39,3.16l-26.02,8.88c-.4.14-.8.2-1.21.2Z" />
+                <path
+                    d="M1225.41,975.63c.81,0,1.6.17,2.35.49l18.28,7.98c1.42.62,1.89,1.9,1.85,2.89-.04.98-.6,2.21-2.06,2.7l-26.02,8.88c-.34.12-.7.18-1.05.18-.97,0-1.91-.47-2.51-1.25-.57-.75-.75-1.66-.5-2.56l4.17-15.21c.66-2.42,2.92-4.11,5.5-4.11Z" />
+            </g>
+        </svg>
         <div id="twilio-webchat-widget-root"></div>
     </div>
 
@@ -61,20 +115,23 @@
         <i class="fab fa-github"></i>
     </a>
 
-   
+    <!-- Twilio Web Chat -->
     <script>
         window.addEventListener("load", () => {
-          const appConfig = {
-            deploymentKey: "CV165202201038c195a391b16dc3f8e0a8",
+          Twilio.initWebchat({
+            deploymentKey: "CV62f944aad4de610b0e1bc8f78bdde75a",
             appStatus: "open",
+            disablePreEngagementForm: false,
             context: {
-              locationOrigin: window.location.origin,
+              locationOrigin: window.location.origin
             },
+      
             preEngagementConfig: {
-              title: "Welcome to Support",
-              description: "Please fill out the form below to start chatting.",
+              title: "Chat with Support",
+              description: "Let us know how we can help.",
               submitLabel: "Start Chat",
               footerLabel: "Powered by Twilio",
+      
               fields: [
                 {
                   label: "Name",
@@ -82,52 +139,37 @@
                   attributes: {
                     name: "friendlyName",
                     type: "text",
-                    placeholder: "User",
+                    placeholder: "Enter your name",
                     required: true,
-                    value: "User"
+                    value: "Test"
                   }
                 },
                 {
-                  label: "Email",
+                  label: "Email address",
                   type: "InputItem",
                   attributes: {
                     name: "email",
                     type: "email",
-                    placeholder: "user@propertymanagement.com",
+                    placeholder: "Enter your email address",
                     required: true,
-                    value: "user@propertymanagement.com"
+                    value: "test@test.com" 
                   }
                 },
                 {
-                  label: "Topic",
-                  type: "SelectItem",
-                  attributes: {
-                    name: "topic",
-                    required: true
-                  },
-                  options: [
-                    { value: "topic1", label: "Topic 1", selected: true },
-                    { value: "topic2", label: "Topic 2" },
-                    { value: "topic3", label: "Topic 3" }
-                  ]
-                },
-                {
-                  label: "How can we help?",
+                  label: "Ask a question",
                   type: "TextareaItem",
                   attributes: {
                     name: "query",
                     type: "text",
-                    placeholder: "Describe your issue...",
+                    placeholder: "Type your question here",
                     required: true
                   }
                 }
               ]
             }
-          };
-    
-          Twilio.initWebchat(appConfig);
+          });
         });
-    </script>
+      </script>
 </body>
 
 </html>
